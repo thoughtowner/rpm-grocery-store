@@ -166,11 +166,24 @@ class Promotion(UUIDMixin, CreatedDatatimeMixin, ModifiedDatatimeMixin):
         verbose_name_plural = _('promotions')
 
 
+class Client(UUIDMixin, CreatedDatatimeMixin, ModifiedDatatimeMixin):
+    user = models.OneToOneField(AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_('user'))
+    money = models.DecimalField(_('money'), null=True, blank=True, decimal_places=2, max_digits=10, validators=[check_positive], default=0)
+
+    def __str__(self) -> str:
+        return f'{self.user.username} ({self.user.first_name} {self.user.last_name})'
+    
+    class Meta:
+        db_table = '"grocery_store"."client"'
+        verbose_name = _('client')
+        verbose_name_plural = _('clients')
+
+
 class Review(UUIDMixin, CreatedDatatimeMixin, ModifiedDatatimeMixin):
     text = models.TextField(_('text'), null=False, blank=False, max_length=REVIEW_TEXT_MAX_LENGTH)
     rating = models.PositiveSmallIntegerField(_('rating'), null=True, blank=True, validators=[check_max_rating], default=5)
 
-    user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_('user'))
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name=_('client'))
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name=_('product'))
 
     def __str__(self) -> str:
@@ -197,16 +210,3 @@ class ProductToPromotion(UUIDMixin, CreatedDatatimeMixin):
         )
         verbose_name = _('Relationship product to promotion')
         verbose_name_plural = _('Relationships product to promotion')
-
-
-class Client(UUIDMixin, CreatedDatatimeMixin, ModifiedDatatimeMixin):
-    user = models.OneToOneField(AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_('user'))
-    money = models.DecimalField(_('money'), null=True, blank=True, decimal_places=2, max_digits=10, validators=[check_positive], default=0)
-
-    def __str__(self) -> str:
-        return f'{self.user.username} ({self.user.first_name} {self.user.last_name})'
-    
-    class Meta:
-        db_table = '"grocery_store"."client"'
-        verbose_name = _('client')
-        verbose_name_plural = _('clients')
