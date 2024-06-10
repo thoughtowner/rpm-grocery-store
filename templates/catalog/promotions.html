@@ -1,0 +1,10 @@
+{% extends "base_generic.html" %}
+{% block content %}
+  <p style="color: #7e7e7e; font-size: 32px; text-align: center;">Promotions</p>
+  {% for promotion in promotions_list %}
+    <li style="display: inline-block; margin-right: 2%; margin-bottom: 3%;"><a href="{% url 'promotion'%}?id={{promotion.id}}" style="list-style-type: none; text-decoration: none;">
+      <img style="list-style-type: none; border: 3px solid #dbdbdb; width: 450px; height: 300px;" src="{{promotion.image}}">
+      <p style="list-style-type: none; text-decoration: none; color: #7e7e7e; font-size: 24px; word-wrap: break-word; width: 450px; "><a>{{ promotion.title }}</a></p>
+    </a></li>
+  {% endfor %}
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    {% if client_data %}
+        <h5>Your profile data:</h5>
+        <ul>
+            {% for key, value in client_data.items %}
+                <li> {{key}}: {{value}} </li>
+            {% endfor %}
+        </ul>
+        {% if client_products %}
+            <h4>Your products:</h4>
+            <ul>
+                {% for product in client_products %}
+                    <li> <a href="{% url 'product' %}?id={{ product.id }}"> {{ product.title }}</a> </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <h4>You have not purchased any products yet.</h4>
+        {% endif %}
+
+    {% else %}
+        <p>No client data to show..</p>
+    {% endif %}
+
+    <h4> To add funds to your account please use form below: </h4>
+
+    {% if form_errors %}
+        <h5>{{ form_errors }}</h5>
+    {% endif %}
+
+    <form action="/profile/" method="POST">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Add funds">
+    </form>
+{% endblock %}

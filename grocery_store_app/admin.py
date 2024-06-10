@@ -1,14 +1,11 @@
 from django.contrib import admin
-
-from .models import Category, Product, Promotion, Review, Client, CategoryToCategory, ProductToPromotion
+from django.db.models.query import QuerySet
+from django.http import HttpRequest
+from django.db.models import Q
+from pprint import pprint
+from .models import Category, Product, Promotion, Review, Client, ProductToPromotion
 
 # inlines
-
-class CategoryToCategoryInline(admin.TabularInline):
-    model = CategoryToCategory
-    extra = 1
-    fk_name = 'parent_category'
-
 
 class ProductToPromotionInline(admin.TabularInline):
     model = ProductToPromotion
@@ -19,7 +16,6 @@ class ProductToPromotionInline(admin.TabularInline):
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     model = Category
-    inlines = (CategoryToCategoryInline,)
 
 
 @admin.register(Product)
@@ -38,16 +34,6 @@ class PromotionAdmin(admin.ModelAdmin):
 class ReviewAdmin(admin.ModelAdmin):
     model = Review
     extra = 1
-
-
-@admin.register(CategoryToCategory)
-class CategoryToCategoryAdmin(admin.ModelAdmin):
-    model = CategoryToCategory
-
-
-@admin.register(ProductToPromotion)
-class ProductToPromotionAdmin(admin.ModelAdmin):
-    model = ProductToPromotion
 
 
 @admin.register(Client)

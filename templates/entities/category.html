@@ -1,0 +1,18 @@
+{% extends "base_generic.html" %}
+{% block content %}
+  <p style="color: #7e7e7e; font-size: 32px; text-align: center;">Products of the "{{ category.title }}" category</p>
+  {% for product in category.products.all %}
+    <li style="display: inline-block; margin-right: 2%; margin-bottom: 3%;"><a href="{% url 'product'%}?id={{product.id}}" style="list-style-type: none; text-decoration: none;">
+      {% if category.title == 'Колбасы' %}
+        <img style="list-style-type: none; border: 3px solid #dbdbdb; width: 300px; height: 200px;" src="{{product.image}}">
+      {% else %}
+        <img style="list-style-type: none; border: 3px solid #dbdbdb; width: 200px; height: 300px;" src="{{product.image}}">
+      {% endif %}
+      {% if product.category.title == 'Колбасы' %}
+        <p style="list-style-type: none; text-decoration: none; color: #7e7e7e; font-size: 24px; word-wrap: break-word; width: 300px; "><a>{{ product.title }}</a></p>
+      {% else %}
+        <p style="list-style-type: none; text-decoration: none; color: #7e7e7e; font-size: 24px; word-wrap: break-word; width: 200px;"><a>{{ product.title }}</a></p>
+      {% endif %}
+    </a></li>
+  {% endfor %}
+{% endblock %}

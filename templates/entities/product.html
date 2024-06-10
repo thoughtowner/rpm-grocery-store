@@ -1,0 +1,42 @@
+{% extends "base_generic.html" %}
+{% block content %}
+  <div style="border: 7px solid #181818; margin-right: 5%; display: flex; justify-content: flex-start; background-color: #181818; box-sizing: border-box; list-style-type: none; font-size: 28px; margin-bottom: 20px; width: 100%;">
+    <div style="margin-right: 50px; margin-left: 3%">
+        {% if product.category.title == 'Колбасы' %}
+          <img style="list-style-type: none; border: 3px solid #dbdbdb; width: 450px; height: 300px;" src="{{product.image}}">
+          <div style="line-height: 50pt; list-style-type: none; text-decoration: none; font-size: 36px; word-wrap: break-word; width: 450px; color: #7e7e7e;">Price: <a style="color: #dbdbdb;">{{ product.price }}</a> RUB</div>
+          <div style="line-height: 50pt; list-style-type: none; text-decoration: none; font-size: 36px; word-wrap: break-word; width: 450px; color: #7e7e7e;">Rating: <a style="color: #dbdbdb;">{{ average_rating }}</a>/5</div>
+        {% else %}
+          <img style="list-style-type: none; border: 3px solid #dbdbdb; width: 300px; height: 450px;" src="{{product.image}}">
+          <div style="line-height: 50pt; list-style-type: none; text-decoration: none; font-size: 36px; word-wrap: break-word; width: 300px; color: #7e7e7e;">Price: <a style="color: #dbdbdb;">{{ product.price }}</a> RUB</div>
+          <div style="line-height: 50pt; list-style-type: none; text-decoration: none; font-size: 36px; word-wrap: break-word; width: 450px; color: #7e7e7e;">Rating: <a style="color: #dbdbdb;">{{ average_rating }}</a>/5</div>
+        {% endif %}
+    </div>
+    <div style="margin-right: 150px;">
+      <li style="display: inline-block; margin-right: 2%;"><a href="{% url 'product'%}?id={{product.id}}" style="list-style-type: none; text-decoration: none;"></a>
+        <div style="line-height: 40pt; list-style-type: none; text-decoration: none; color: #dbdbdb; font-size: 48px; word-wrap: break-word; width: 8s00px;"><a>{{ product.title }}</a></div>
+        <div style="line-height: 40pt; list-style-type: none; text-decoration: none; color: #7e7e7e; font-size: 32px; word-wrap: break-word; width: 800px;"><a>Description:</a></div>
+        <div style="line-height: 20pt; list-style-type: none; text-decoration: none; color: #dbdbdb; font-size: 24px; word-wrap: break-word; width: 800px;"><a>{{ product.description }}</a></div>
+      </a></li>
+    </div>
+  </div>
+  <div style="background-color: #181818;">
+    <div style="margin-left: 3%; line-height: 50pt; list-style-type: none; text-decoration: none; font-size: 52px; word-wrap: break-word; width: 100%; color: #7e7e7e; margin-bottom: 20px;">Category: <a style="color: #dbdbdb;">{{ product.category.title }}</a></div>
+  </div>
+  <div style="background-color: #181818;">
+    <div style="margin-bottom: 20px;">
+      <div><a style="margin-left: 3%; line-height: 50pt; list-style-type: none; text-decoration: none; font-size: 52px; word-wrap: break-word; width: 100%; color: #7e7e7e;">Reviews:</a></div>
+    </div>
+    <div style="text-decoration: none;">
+      {% for review in product.reviews.all %}
+        <div style="background-color: #222222; margin-left: 75px; width: 500px;">
+          <li style="list-style-type: none; text-decoration: none; margin-bottom: 3%;">
+            <div style="margin-left: 25px; list-style-type: none; text-decoration: none; color: #7e7e7e; font-size: 32px; word-wrap: break-word; width: 500px; margin-bottom: 10px;">User: <a style="color: #dbdbdb; text-decoration: none;">{{ review.client.user.username }}</a></div>
+            <div style="margin-left: 25px; list-style-type: none; text-decoration: none; color: #7e7e7e; font-size: 32px; word-wrap: break-word; width: 500px; margin-bottom: 10px;">Rating: <a style="color: #dbdbdb; text-decoration: none;">{{ review.rating }}</a>/5</div>
+            <div style="margin-left: 25px; list-style-type: none; text-decoration: none; color: #dbdbdb; font-size: 32px; word-wrap: break-word; width: 500px;"><a>{{ review.text }}</a></div>
+          </li>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

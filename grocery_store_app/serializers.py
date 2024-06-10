@@ -1,40 +1,28 @@
 from rest_framework.serializers import HyperlinkedModelSerializer
 
-from .models import Category, Product, Promotion, Review
+from .models import Category, Product, Promotion, Review, Client
 
 class CategorySerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Category
-        fields = [
-            'id',
-            'title', 'description',
-            'created', 'modified',
-        ]
+        fields = '__all__'
 
 class ProductSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Product
-        fields = [
-            'id',
-            'title', 'description', 'price',
-            'created', 'modified',
-        ]
+        fields = '__all__'
 
 class PromotionSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Promotion
-        fields = [
-            'id',
-            'title', 'description', 'discount_amount',
-            'start_date', 'end_date',
-            'created', 'modified',
-        ]
+        fields = '__all__'
 
 class ReviewSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Review
-        fields = [
-            'id',
-            'text', 'rating',
-            'created', 'modified',
-        ]
+        fields = '__all__'
+
+class ClientSerializer(HyperlinkedModelSerializer):
+    class Meta:
+        model = Client
+        fields = '__all__'

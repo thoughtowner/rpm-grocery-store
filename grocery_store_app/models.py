@@ -4,57 +4,83 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from datetime import datetime, date, timezone
 from uuid import uuid4
+from typing import Any
 
 
 CATEGORY_TITLE_MAX_LENGTH = 100
 CATEGORY_DESCRIPTION_MAX_LENGTH = 1000
-PRODUCT_AND_PROMOTION_TITLE_MAX_LENGTH = 200
-PRODUCT_AND_PROMOTION_DESCRIPTION_MAX_LENGTH = 2000
+PRODUCT_TITLE_MAX_LENGTH = 200
+PRODUCT_DESCRIPTION_MAX_LENGTH = 2000
+PROMOTION_TITLE_MAX_LENGTH = 200
+PROMOTION_DESCRIPTION_MAX_LENGTH = 2000
 REVIEW_TEXT_MAX_LENGTH = 1000
+DEFAULT_IMAGE = 'https://acropora.ru/images/yootheme/pages/features/panel03.jpg'
 
 
-def get_datetime():
-    return datetime.now(timezone.utc)
+def get_current_datetime():
+    return datetime.now(tz=timezone.utc)
 
-def check_created_datatime(created_datatime: datetime) -> None:
-    if created_datatime > get_datetime():
+def get_current_date():
+    return date.today()
+
+def check_created_datetime(created_datetime: datetime) -> None:
+    if created_datetime > get_current_datetime():
         raise ValidationError(
-            _('Created datatime is bigger than current datetime!'),
-            params={'created_datatime': created_datatime}
+            _('The created datetime should be less than or equal to the current datetime!'),
+            params={'created_datetime': created_datetime}
         )
 
-def check_modified_datatime(modified_datatime: datetime) -> None:
-    if modified_datatime > get_datetime():
+def check_modified_datetime(modified_datetime: datetime) -> None:
+    if modified_datetime > get_current_datetime():
         raise ValidationError(
-            _('Modified datatime is bigger than current datetime!'),
-            params={'modified_datatime': modified_datatime}
+            _('The modified datetime should be less than or equal to the current datetime!'),
+            params={'modified_datetime': modified_datetime}
         )
     
 def check_start_date(start_date: date) -> None:
-    if start_date > date.today():
+    if start_date < get_current_date():
         raise ValidationError(
-            _('Start date is bigger than current date!'),
+            _('The start date should be greater than or equal to the current date!'),
             params={'start_date': start_date},
         )
 
 def check_end_date(end_date: date) -> None:
-    if end_date > date.today():
+    if end_date < get_current_date():
         raise ValidationError(
-            _('End date is bigger than current date!'),
+            _('The end date should be greater than or equal to the current date!'),
             params={'end_date': end_date},
         )
     
-def check_positive(number: int | float) -> None:
-    if number < 0:
-        raise ValidationError(_('Value has to be greater than zero!'))
+def check_price(price: int | float) -> None:
+    if price <= 0 or price >= 10000:
+        raise ValidationError(_('The price should be in the range between 0.01 and 9999.99 inclusive!'),
+            params={'price': price},
+        )
     
-def check_max_discount_amount(discount_amount: int) -> None:
-    if discount_amount > 100:
-        raise ValidationError(_('Discount amount has to be less than one hundred!'))
+def check_discount_amount(discount_amount: int) -> None:
+    if discount_amount < 0 or discount_amount > 100:
+        raise ValidationError(_('The discount amount should be in the range between 0 and 100 inclusive!'),
+            params={'discount_amount': discount_amount},
+        )
+
+def check_money(money: int | float) -> None:
+    if money < 0 or money >= 10000000:
+        raise ValidationError(_('The money should be in the range between 0 and 9999999.99 inclusive!'),
+            params={'money': money},
+        )
     
-def check_max_rating(rating: int) -> None:
-    if rating > 5:
-        raise ValidationError(_('Rating has to be less than five!'))
+def check_rating(rating: int) -> None:
+    if rating < 0 or rating > 5:
+        raise ValidationError(_('The rating should be in the range between 0 and 5 inclusive!'),
+            params={'rating': rating},
+        )
+
+def check_quantity(quantity: int) -> None:
+    if quantity < 0:
+        raise ValidationError(
+            _('The quantity should be greater than or equal to the 0!'),
+            params={'quantity': quantity},
+        )
 
 
 class UUIDMixin(models.Model):
@@ -64,13 +90,13 @@ class UUIDMixin(models.Model):
         abstract = True
 
 
-class CreatedDatatimeMixin(models.Model):
-    created_datatime = models.DateTimeField(
-        _('created_datatime'),
+class CreatedDatetimeMixin(models.Model):
+    created_datetime = models.DateTimeField(
+        _('created_datetime'),
         null=True, blank=True,
-        default=get_datetime, 
+        default=get_current_datetime, 
         validators=[
-            check_created_datatime,
+            check_created_datetime,
         ]
     )
 
@@ -78,13 +104,13 @@ class CreatedDatatimeMixin(models.Model):
         abstract = True
 
 
-class ModifiedDatatimeMixin(models.Model):
-    modified_datatime = models.DateTimeField(
-        _('modified_datatime'),
+class ModifiedDatetimeMixin(models.Model):
+    modified_datetime = models.DateTimeField(
+        _('modified_datetime'),
         null=True, blank=True,
-        default=get_datetime, 
+        default=get_current_datetime, 
         validators=[
-            check_modified_datatime,
+            check_modified_datetime,
         ]
     )
 
@@ -92,9 +118,10 @@ class ModifiedDatatimeMixin(models.Model):
         abstract = True
 
 
-class Category(UUIDMixin, CreatedDatatimeMixin, ModifiedDatatimeMixin):
+class Category(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
     title = models.TextField(_('title'), null=False, blank=False, max_length=CATEGORY_TITLE_MAX_LENGTH)
     description = models.TextField(_('description'), null=True, blank=True, max_length=CATEGORY_DESCRIPTION_MAX_LENGTH)
+    image = models.TextField(null=True, blank=True, default=DEFAULT_IMAGE)
 
     def __str__(self) -> str:
         return self.title
@@ -106,32 +133,37 @@ class Category(UUIDMixin, CreatedDatatimeMixin, ModifiedDatatimeMixin):
         verbose_name_plural = _('categories')
 
 
-class CategoryToCategory(UUIDMixin, CreatedDatatimeMixin):
-    parent_category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name=_('parent_category'), related_name='child_categories')
-    child_category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name=_('child_category'), related_name='parent_categories')
+class ProductManager(models.Manager):
+    def filter_by_category_title(self, category_title: str) -> None:
+        return self.get_queryset().filter(categories__title=category_title)
 
-    def __str__(self) -> str:
-        return f'{self.parent_category} - {self.child_category}'
-
-    class Meta:
-        db_table = '"grocery_store"."category_to_category"'
-        unique_together = (
-            ('parent_category', 'child_category'),
-        )
-        verbose_name = _('Relationship category to category')
-        verbose_name_plural = _('Relationships category to category')
+    def create(self, **kwargs: Any) -> Any:
+        if 'price' in kwargs.keys():
+            check_price(kwargs['price'])
+        if 'created_datetime' in kwargs.keys():
+            check_created_datetime(kwargs['created_datetime'])
+        if 'check_modified_datetime' in kwargs.keys():
+            check_modified_datetime(kwargs['check_modified_datetime'])
+        return super().create(**kwargs)
 
 
-class Product(UUIDMixin, CreatedDatatimeMixin, ModifiedDatatimeMixin):
-    title = models.TextField(_('title'), null=False, blank=False, max_length=PRODUCT_AND_PROMOTION_TITLE_MAX_LENGTH)
-    description = models.TextField(_('description'), null=True, blank=True, max_length=PRODUCT_AND_PROMOTION_DESCRIPTION_MAX_LENGTH)
-    price = models.DecimalField(_('price'), null=False, blank=False, max_digits=7, decimal_places=2, validators=[check_positive], default=0)
+class Product(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
+    title = models.TextField(_('title'), null=False, blank=False, max_length=PRODUCT_TITLE_MAX_LENGTH)
+    description = models.TextField(_('description'), null=True, blank=True, max_length=PRODUCT_DESCRIPTION_MAX_LENGTH)
+    price = models.DecimalField(_('price'), null=False, blank=False, max_digits=6, decimal_places=2, validators=[check_price,])
+    image = models.TextField(null=True, blank=True, default=DEFAULT_IMAGE)
 
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name=_('category'))
+    objects = ProductManager()
+
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name=_('category'), related_name='products')
     promotions = models.ManyToManyField('Promotion', through='ProductToPromotion', verbose_name=_('promotions'))
 
     def __str__(self) -> str:
-        return f'{self.title} ({self.price} {_("rubles")})'
+        return f'{self.title} ({self.price} {_("RUB")})'
+    
+    def save(self, *args, **kwargs):
+        check_price(self.price)
+        super().save(*args, **kwargs)
 
     class Meta:
         db_table = '"grocery_store"."products"'
@@ -140,25 +172,34 @@ class Product(UUIDMixin, CreatedDatatimeMixin, ModifiedDatatimeMixin):
         verbose_name_plural = _('products')
 
 
-class Promotion(UUIDMixin, CreatedDatatimeMixin, ModifiedDatatimeMixin):
-    title = models.TextField(_('title'), null=False, blank=False, max_length=PRODUCT_AND_PROMOTION_TITLE_MAX_LENGTH)
-    description = models.TextField(_('description'), null=True, blank=True, max_length=PRODUCT_AND_PROMOTION_DESCRIPTION_MAX_LENGTH)
-    discount_amount = models.PositiveSmallIntegerField(_('discount amount'), null=False, blank=False, validators=[check_max_discount_amount], default=0)
-    start_date = models.DateField(_('start date'), null=False, blank=False, validators=[check_start_date])
-    end_date = models.DateField(_('end date'), null=True, blank=True, validators=[check_end_date])
+class Promotion(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
+    title = models.TextField(_('title'), null=False, blank=False, max_length=PROMOTION_TITLE_MAX_LENGTH)
+    description = models.TextField(_('description'), null=True, blank=True, max_length=PROMOTION_DESCRIPTION_MAX_LENGTH)
+    discount_amount = models.PositiveSmallIntegerField(_('discount amount'), null=False, blank=False, validators=[check_discount_amount,])
+    start_date = models.DateField(_('start date'), null=False, blank=False, validators=[check_start_date,], default=get_current_date)
+    end_date = models.DateField(_('end date'), null=False, blank=False, validators=[check_end_date,], default=get_current_date)
+    image = models.TextField(null=True, blank=True, default=DEFAULT_IMAGE)
 
     products = models.ManyToManyField(Product, through='ProductToPromotion', verbose_name=_('products'))
+    
+    def __str__(self) -> str:
+        return f'{self.title} ({_("discount amount")}: {self.discount_amount}, {_("discount time")}: {self.start_date} - {self.end_date})'
 
     def clean(self):
         super().clean()
-        if self.end_date and self.start_date > self.end_date:
-            raise ValidationError({
-                'end_date': _(f'The {self.end_date} should be greater than or equal to the {self.start_date}'),
-            })
-    
-    def __str__(self) -> str:
-        return self.title
-    
+        if self.end_date:
+            if self.start_date > self.end_date:
+                raise ValidationError({
+                    'end_date': _(f'The {self.end_date} should be greater than or equal to the {self.start_date}!'),
+                })
+            
+    def save(self, *args, **kwargs):
+        check_discount_amount(self.discount_amount)
+        check_start_date(self.start_date)
+        if self.end_date:
+            check_end_date(self.end_date)
+        super().save(*args, **kwargs)
+            
     class Meta:
         db_table = '"grocery_store"."promotions"'
         ordering = ['discount_amount']
@@ -166,37 +207,7 @@ class Promotion(UUIDMixin, CreatedDatatimeMixin, ModifiedDatatimeMixin):
         verbose_name_plural = _('promotions')
 
 
-class Client(UUIDMixin, CreatedDatatimeMixin, ModifiedDatatimeMixin):
-    user = models.OneToOneField(AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_('user'))
-    money = models.DecimalField(_('money'), null=True, blank=True, decimal_places=2, max_digits=10, validators=[check_positive], default=0)
-
-    def __str__(self) -> str:
-        return f'{self.user.username} ({self.user.first_name} {self.user.last_name})'
-    
-    class Meta:
-        db_table = '"grocery_store"."client"'
-        verbose_name = _('client')
-        verbose_name_plural = _('clients')
-
-
-class Review(UUIDMixin, CreatedDatatimeMixin, ModifiedDatatimeMixin):
-    text = models.TextField(_('text'), null=False, blank=False, max_length=REVIEW_TEXT_MAX_LENGTH)
-    rating = models.PositiveSmallIntegerField(_('rating'), null=True, blank=True, validators=[check_max_rating], default=5)
-
-    client = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name=_('client'))
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name=_('product'))
-
-    def __str__(self) -> str:
-        return f'{self.text}; {_("rating")} {self.rating}/5'
-    
-    class Meta:
-        db_table = '"grocery_store"."reviews"'
-        ordering = ['rating']
-        verbose_name = _('review')
-        verbose_name_plural = _('reviews')
-
-
-class ProductToPromotion(UUIDMixin, CreatedDatatimeMixin):
+class ProductToPromotion(UUIDMixin, CreatedDatetimeMixin):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name=_('product'))
     promotion = models.ForeignKey(Promotion, on_delete=models.CASCADE, verbose_name=_('promotion'))
 
@@ -210,3 +221,74 @@ class ProductToPromotion(UUIDMixin, CreatedDatatimeMixin):
         )
         verbose_name = _('Relationship product to promotion')
         verbose_name_plural = _('Relationships product to promotion')
+
+
+class Review(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
+    text = models.TextField(_('text'), null=False, blank=False, max_length=REVIEW_TEXT_MAX_LENGTH)
+    rating = models.PositiveSmallIntegerField(_('rating'), null=False, blank=False, validators=[check_rating,], default=5)
+
+    client = models.ForeignKey('Client', on_delete=models.CASCADE, verbose_name=_('client'))
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name=_('product'), related_name='reviews')
+
+    def __str__(self) -> str:
+        return f'{self.text} ({_("rating")}: {self.rating}/5)'
+    
+    def save(self, *args, **kwargs):
+        check_rating(self.rating)
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        db_table = '"grocery_store"."reviews"'
+        ordering = ['rating']
+        verbose_name = _('review')
+        verbose_name_plural = _('reviews')
+
+class ClientManager(models.Manager):
+    def create(self, **kwargs: Any) -> Any:
+        if 'money' in kwargs.keys():
+            check_money(kwargs['money'])
+        return super().create(**kwargs)
+
+
+class Client(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
+    money = models.DecimalField(_('money'), null=False, blank=False, max_digits=9, decimal_places=2, validators=[check_money,], default=0)
+
+    objects = ClientManager()
+
+    user = models.OneToOneField(AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_('user'))
+    products = models.ManyToManyField(Product, through='ClientToProduct', verbose_name=_('products'))
+
+    def __str__(self) -> str:
+        return f'{self.user.username} ({self.user.first_name} {self.user.last_name})'
+    
+    def save(self, *args, **kwargs):
+        check_money(self.money)
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        db_table = '"grocery_store"."client"'
+        ordering = ['user']
+        verbose_name = _('client')
+        verbose_name_plural = _('clients')
+
+
+class ClientToProduct(UUIDMixin, CreatedDatetimeMixin):
+    quantity = models.PositiveSmallIntegerField(_('quantity'), null=False, blank=False, validators=[check_quantity,], default=1)
+
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name=_('client'))
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name=_('product'))
+
+    def __str__(self) -> str:
+        return f'{self.client} - {self.product}'
+    
+    def save(self, *args, **kwargs):
+        check_quantity(self.quantity)
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        db_table = '"grocery_store"."client_to_product"'
+        unique_together = (
+            ('client', 'product'),
+        )
+        verbose_name = _('Relationship client to product')
+        verbose_name_plural = _('Relationships client to product')

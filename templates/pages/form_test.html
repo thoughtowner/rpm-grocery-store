@@ -1,0 +1,14 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+<form action="/test_form/" method="GET">
+    {{ form }}
+    <input type="submit" value="Test the form">
+</form>
+
+    <h2> Text: {{ text }} </h2>
+    <h2> Number: {{ number }} </h2>
+    <h2> Choice: {{ choice }} </h2>
+
+{% endblock %}
