@@ -1,9 +1,12 @@
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.client import Client as TestClient
 from django.urls import reverse
-from django.contrib.auth.models import User
-from grocery_store_app.models import Category, Product, Promotion, Review, Client
 from rest_framework import status
+
+from grocery_store_app.models import (Category, Client, Product, Promotion,
+                                      Review)
+
 
 def create_method_with_auth(url, page_name, template, login=False):
     def method(self):
@@ -58,8 +61,8 @@ instance_pages = (
     ('/product/', 'product', 'entities/product.html', Product, {'title': 'A', 'price': 100.00}),
     ('/promotion/', 'promotion', 'entities/promotion.html', Promotion, {'title': 'A', 'discount_amount': 10}),
     ('/review/', 'review', 'entities/review.html', Review, {'text': 'A'}),
-    ('/buy/', 'buy', 'pages/buy.html', Product, {'title': 'A', 'price': 100.00}),
-    ('/read/', 'read', 'pages/read.html', Product, {'title': 'A', 'price': 100.00})
+    ('/order/', 'order', 'pages/order.html', Product, {'title': 'A', 'price': 100.00}),
+    ('/cancel_order/', 'cancel_order', 'pages/cancel_order.html', Product, {'title': 'A', 'price': 100.00})
 )
 
 pages = (

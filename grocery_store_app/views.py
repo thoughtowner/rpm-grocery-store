@@ -1,14 +1,18 @@
 from typing import Any
-from django.shortcuts import render, redirect
-from django.views.generic import ListView
-from django.core import paginator as django_paginator, exceptions
-from rest_framework import viewsets, permissions, authentication
-from django.contrib.auth import decorators, mixins
-from django.db.models import Avg
 
-from .serializers import CategorySerializer, ProductSerializer, PromotionSerializer, ReviewSerializer, ClientSerializer
-from .models import Category, Product, Promotion, Review, Client
-from .forms import RegistrationForm, AddFundsForm
+from django.contrib.auth import decorators, mixins
+from django.core import exceptions
+from django.core import paginator as django_paginator
+from django.db.models import Avg
+from django.shortcuts import redirect, render
+from django.views.generic import ListView
+from rest_framework import authentication, permissions, viewsets
+
+from .forms import AddFundsForm, RegistrationForm
+from .models import Category, Client, Product, Promotion, Review
+from .serializers import (CategorySerializer, ClientSerializer,
+                          ProductSerializer, PromotionSerializer,
+                          ReviewSerializer)
 
 
 def homepage(request):
@@ -101,7 +105,7 @@ def create_view(model_class, context_name, template, redirect_page):
                 return None
             average_rating = Review.objects.filter(product=product).aggregate(average_rating=Avg('rating'))
             average_rating = average_rating['average_rating'] if average_rating['average_rating'] is not None else 0
-            if average_rating.is_integer():
+            if isinstance(average_rating, int) or average_rating.is_integer():
                 average_rating_rounded = int(average_rating)
             else:
                 average_rating_rounded = round(average_rating, 1)
@@ -141,4 +145,70 @@ def profile(request):
             'client_data': {'username': client.user.username, 'money': client.money},
             'client_products': client.products.all(),
         }
+    )
+
+
+@decorators.login_required
+def order(request):
+    product_id = request.GET.get('id', None)
+    if not product_id:
+        return redirect('products')
+    try:
+        product = Product.objects.get(id=product_id) if product_id else None
+    except exceptions.ValidationError:
+        return redirect('products')
+    if not product:
+        return redirect('products')
+    
+    client = Client.objects.get(user=request.user)
+
+    if request.method == 'POST' and client.money >= quantity * product.price: # and product not in client.products.all():
+        client.money -= quantity * product.price
+        if product not in client.products.all():
+            client.products.add(product)
+            client.products.quantity = quantity
+        else:
+            client.products.quantity += quantity
+        client.save()
+
+    return render(
+        request,
+        'pages/order.html',
+        {
+            # 'client_has_product': product in client.products.all(),
+            'money': client.money,
+            'product': product,
+        }
+    )
+
+@decorators.login_required
+def cancel_order(request):
+    product_id = request.GET.get('id', None)
+    if not product_id:
+        return redirect('products')
+    try:
+        product = Product.objects.get(id=product_id) if product_id else None
+    except exceptions.ValidationError:
+        return redirect('products')
+    if not product:
+        return redirect('products')
+    
+    client = Client.objects.get(user=request.user)
+
+    if request.method == 'POST' and product in client.products.all():
+        client.money += quantity * product.price
+        if quantity >= client.products.quantity:
+            client.products.remove(product)
+        else:
+            client.products.quantity -= quantity
+        client.save()
+
+    return render(
+        request,
+        'pages/cancel_order.html',
+        {
+            # 'user_has_access': product in client.products.all(),
+            'money': client.money,
+            'product': product,
+        },
     )

@@ -34,8 +34,8 @@ jobs:
     - name: Test forms
       run: ./tests/test.sh tests.test_forms
 
-    - name: Test buy
-      run: ./tests/test.sh tests.test_buy
+    - name: Test order
+      run: ./tests/test.sh tests.test_order
     - name: Test add_funds
       run: ./tests/test.sh tests.test_add_funds
     - name: Test registration

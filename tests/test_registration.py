@@ -1,6 +1,8 @@
-from django.test import TestCase, client as test_client
-from rest_framework import status
 from django.contrib.auth.models import User
+from django.test import TestCase
+from django.test import client as test_client
+from rest_framework import status
+
 
 class TestRegistration(TestCase):
     _url = '/register/'

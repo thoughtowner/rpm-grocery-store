@@ -1,13 +1,14 @@
+from datetime import date, timedelta
+
+from django.conf.global_settings import AUTH_USER_MODEL
+from django.contrib.auth.models import User
 from django.test import TestCase
+from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
-from django.contrib.auth.models import User
-from rest_framework import status
 
-from grocery_store_app.models import Category, Product, Promotion, Review, Client, ProductToPromotion
-from django.conf.global_settings import AUTH_USER_MODEL
-
-from datetime import date, timedelta
+from grocery_store_app.models import (Category, Client, Product,
+                                      ProductToPromotion, Promotion, Review)
 
 
 def create_viewset_test(model_class, url, creation_attrs):

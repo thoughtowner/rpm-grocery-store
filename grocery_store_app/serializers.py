@@ -1,6 +1,7 @@
 from rest_framework.serializers import HyperlinkedModelSerializer
 
-from .models import Category, Product, Promotion, Review, Client
+from .models import Category, Client, Product, Promotion, Review
+
 
 class CategorySerializer(HyperlinkedModelSerializer):
     class Meta:

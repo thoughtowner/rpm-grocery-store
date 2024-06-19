@@ -1,8 +1,9 @@
+from types import MethodType
 from typing import Any
+
+from django.db import connections
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.test.runner import DiscoverRunner
-from django.db import connections
-from types import MethodType
 
 
 def prepare_db(self):

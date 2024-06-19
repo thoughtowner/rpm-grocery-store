@@ -1,9 +1,12 @@
+from pprint import pprint
+
 from django.contrib import admin
+from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.http import HttpRequest
-from django.db.models import Q
-from pprint import pprint
-from .models import Category, Product, Promotion, Review, Client, ProductToPromotion
+
+from .models import (Category, Client, Product, ProductToPromotion, Promotion,
+                     Review)
 
 # inlines
 

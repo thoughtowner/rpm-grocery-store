@@ -1,6 +1,7 @@
-from django.forms import Form, ModelForm, NumberInput, DecimalField, IntegerField, CharField, EmailField
 from django.contrib.auth import forms, models
 from django.core.exceptions import ValidationError
+from django.forms import (CharField, DecimalField, EmailField, Form,
+                          IntegerField, ModelForm, NumberInput)
 from django.utils.translation import gettext_lazy as _
 
 from .models import Product, Promotion, Review

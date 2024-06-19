@@ -1,11 +1,14 @@
-from django.test import TestCase, client as test_client
-from django.contrib.auth.models import User
 from decimal import Decimal
+
+from django.contrib.auth.models import User
+from django.test import TestCase
+from django.test import client as test_client
 
 from grocery_store_app.models import Client, Product
 
+
 class TestPurchase(TestCase):
-    _buy_page = '/buy/'
+    _order_page = '/order/'
 
     def setUp(self) -> None:
         self.test_client = test_client.Client()
@@ -14,7 +17,7 @@ class TestPurchase(TestCase):
         self.test_client.force_login(self.user)
 
         self.product = Product.objects.create(title='ABC', volume=1, price=1)
-        self.page_url = f'{self._buy_page}?id={self.product.id}'
+        self.page_url = f'{self._order_page}?id={self.product.id}'
 
     def test_insufficient_funds(self):
         self.test_client.post(self.page_url, {})

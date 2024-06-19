@@ -1,6 +1,7 @@
-from django.urls import path, include
-from . import views
+from django.urls import include, path
 from rest_framework import routers
+
+from . import views
 
 router = routers.DefaultRouter()
 router.register(r'categories', views.CategoryViewSet)
@@ -25,6 +26,6 @@ urlpatterns = [
     # path('review/', views.view_review, name='review'),
     path('clients/', views.ClientListView.as_view(), name='clients'),
     path('profile/', views.profile, name='profile'),
-    # path('buy/', views.buy, name='buy'),
-    # path('read/', views.read, name='read'),
+    path('order/', views.order, name='order'),
+    path('cancel_order/', views.cancel_order, name='cancel_order'),
 ]

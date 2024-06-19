@@ -1,6 +1,7 @@
-from django.test import TestCase
-from grocery_store_app.forms import RegistrationForm, AddFundsForm
 from django.contrib.auth.models import User
+from django.test import TestCase
+
+from grocery_store_app.forms import AddFundsForm, RegistrationForm
 
 valid_data = {
     'username': 'abc',

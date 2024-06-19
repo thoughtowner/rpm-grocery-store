@@ -1,11 +1,11 @@
+from datetime import date, datetime, timezone
+from typing import Any
+from uuid import uuid4
+
 from django.conf.global_settings import AUTH_USER_MODEL
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from datetime import datetime, date, timezone
-from uuid import uuid4
-from typing import Any
-
 
 CATEGORY_TITLE_MAX_LENGTH = 100
 CATEGORY_DESCRIPTION_MAX_LENGTH = 1000
@@ -153,10 +153,10 @@ class Product(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
     price = models.DecimalField(_('price'), null=False, blank=False, max_digits=6, decimal_places=2, validators=[check_price,])
     image = models.TextField(null=True, blank=True, default=DEFAULT_IMAGE)
 
-    objects = ProductManager()
-
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name=_('category'), related_name='products')
     promotions = models.ManyToManyField('Promotion', through='ProductToPromotion', verbose_name=_('promotions'))
+
+    objects = ProductManager()
 
     def __str__(self) -> str:
         return f'{self.title} ({self.price} {_("RUB")})'
@@ -172,6 +172,21 @@ class Product(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
         verbose_name_plural = _('products')
 
 
+class PromotionManager(models.Manager):
+    def create(self, **kwargs: Any) -> Any:
+        if 'discount_amount' in kwargs.keys():
+            check_discount_amount(kwargs['discount_amount'])
+        if 'start_date' in kwargs.keys():
+            check_start_date(kwargs['start_date'])
+        if 'end_date' in kwargs.keys():
+            check_end_date(kwargs['end_date'])
+        if 'created_datetime' in kwargs.keys():
+            check_created_datetime(kwargs['created_datetime'])
+        if 'check_modified_datetime' in kwargs.keys():
+            check_modified_datetime(kwargs['check_modified_datetime'])
+        return super().create(**kwargs)
+
+
 class Promotion(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
     title = models.TextField(_('title'), null=False, blank=False, max_length=PROMOTION_TITLE_MAX_LENGTH)
     description = models.TextField(_('description'), null=True, blank=True, max_length=PROMOTION_DESCRIPTION_MAX_LENGTH)
@@ -181,6 +196,8 @@ class Promotion(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
     image = models.TextField(null=True, blank=True, default=DEFAULT_IMAGE)
 
     products = models.ManyToManyField(Product, through='ProductToPromotion', verbose_name=_('products'))
+
+    objects = PromotionManager()
     
     def __str__(self) -> str:
         return f'{self.title} ({_("discount amount")}: {self.discount_amount}, {_("discount time")}: {self.start_date} - {self.end_date})'
@@ -223,12 +240,25 @@ class ProductToPromotion(UUIDMixin, CreatedDatetimeMixin):
         verbose_name_plural = _('Relationships product to promotion')
 
 
+class ReviewManager(models.Manager):
+    def create(self, **kwargs: Any) -> Any:
+        if 'rating' in kwargs.keys():
+            check_rating(kwargs['rating'])
+        if 'created_datetime' in kwargs.keys():
+            check_created_datetime(kwargs['created_datetime'])
+        if 'check_modified_datetime' in kwargs.keys():
+            check_modified_datetime(kwargs['check_modified_datetime'])
+        return super().create(**kwargs)
+
+
 class Review(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
     text = models.TextField(_('text'), null=False, blank=False, max_length=REVIEW_TEXT_MAX_LENGTH)
     rating = models.PositiveSmallIntegerField(_('rating'), null=False, blank=False, validators=[check_rating,], default=5)
 
     client = models.ForeignKey('Client', on_delete=models.CASCADE, verbose_name=_('client'))
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name=_('product'), related_name='reviews')
+
+    objects = ReviewManager()
 
     def __str__(self) -> str:
         return f'{self.text} ({_("rating")}: {self.rating}/5)'
@@ -243,6 +273,7 @@ class Review(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
         verbose_name = _('review')
         verbose_name_plural = _('reviews')
 
+
 class ClientManager(models.Manager):
     def create(self, **kwargs: Any) -> Any:
         if 'money' in kwargs.keys():
@@ -253,10 +284,10 @@ class ClientManager(models.Manager):
 class Client(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
     money = models.DecimalField(_('money'), null=False, blank=False, max_digits=9, decimal_places=2, validators=[check_money,], default=0)
 
-    objects = ClientManager()
-
     user = models.OneToOneField(AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_('user'))
     products = models.ManyToManyField(Product, through='ClientToProduct', verbose_name=_('products'))
+
+    objects = ClientManager()
 
     def __str__(self) -> str:
         return f'{self.user.username} ({self.user.first_name} {self.user.last_name})'
