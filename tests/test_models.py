@@ -82,7 +82,7 @@ product_attrs['category'] = category
 # )
 
 # CategoryModelTest = create_model_test(Category, category_attrs)
-ProductModelTest = create_model_test(Product, product_attrs)
+# ProductModelTest = create_model_test(Product, product_attrs)
 
 # CategoryModelTest = create_model_test(Category, category_attrs, category_invalid_attrs)
 # ProductModelTest = create_model_test(Product, product_attrs, product_invalid_attrs)
@@ -115,6 +115,44 @@ ProductModelTest = create_model_test(Product, product_attrs)
 
 # str_methods = {f'test_{args[0].__name__}': create_str_test(*args) for args in str_test_data}
 # StrTest  = type('StrTest', (TestCase,), str_methods)
+
+
+
+# def get_invalid_ticket_attrs(film_cinema) -> tuple[dict]:
+#     return (
+#             {'film_date': 'asdasdads', 'place': 12, 'film_cinema': film_cinema},
+#             {'film_date': None, 'place': None, 'film_cinema': None},
+#         )
+
+def get_valid_ticket_attrs(category) -> dict:
+    return {
+            'title': 'A',
+            'price': 100.00,
+            'category': category
+        }
+
+class ProductModelTest(TestCase):
+    """Test for ticket."""
+
+    def setUp(self) -> None:
+        """Set up things for tests."""
+        self.category = Category.objects.create(title = 'A', description = 'ABC')
+        # product = Product.objects.create(title = 'A', price = 100.00, category=category)
+
+    # def test_unsuccessful_creation(self):
+    #     """Test creating attrs with invalid attrs."""
+    #     for invalid_attrs in get_invalid_ticket_attrs(self.film_cinema):
+    #         with self.assertRaises(ValidationError):
+    #             self.try_save(invalid_attrs)
+
+    def test_successful_creation(self):
+        self.try_save(get_valid_ticket_attrs(self.category))
+
+    def try_save(self, attrs):
+        instance = Product(**attrs)
+        instance.full_clean()
+        instance.save()
+
 
 PAST = datetime(datetime.today().year-1, 1, 1, 1, 1, 1, 1, tzinfo=timezone.utc)
 FUTURE = datetime(datetime.today().year+1, 1, 1, 1, 1, 1, 1, tzinfo=timezone.utc)

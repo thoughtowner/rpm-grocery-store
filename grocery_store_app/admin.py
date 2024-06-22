@@ -6,12 +6,16 @@ from django.db.models.query import QuerySet
 from django.http import HttpRequest
 
 from .models import (Category, Client, Product, ProductToPromotion, Promotion,
-                     Review)
+                     Review, ClientToProduct)
 
 # inlines
 
 class ProductToPromotionInline(admin.TabularInline):
     model = ProductToPromotion
+    extra = 1
+
+class ClientToProductInline(admin.TabularInline):
+    model = ClientToProduct
     extra = 1
 
 # admins
@@ -24,7 +28,7 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     model = Product
-    inlines = (ProductToPromotionInline,)
+    inlines = (ProductToPromotionInline, ClientToProductInline)
 
 
 @admin.register(Promotion)
@@ -42,3 +46,4 @@ class ReviewAdmin(admin.ModelAdmin):
 @admin.register(Client)
 class ClientAdmin(admin.ModelAdmin):
     model = Client
+    inlines = (ClientToProductInline,)

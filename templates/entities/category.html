@@ -1,18 +1,265 @@
 {% extends "base_generic.html" %}
 {% block content %}
-  <p style="color: #7e7e7e; font-size: 32px; text-align: center;">Products of the "{{ category.title }}" category</p>
+<style>
+.category-title {
+  color: #7e7e7e;
+  font-size: 32px;
+  text-align: center;
+}
+
+.category-description-title {
+  color: #7e7e7e;
+  font-size: 28px;
+  margin-left: 100px;
+}
+
+.category-description {
+  color: #dbdbdb;
+  font-size: 28px;
+  margin-left: 20px;
+}
+
+.product-list li {
+  display: inline-block;
+  margin-right: 2%;
+  margin-bottom: 3%;
+}
+
+.product-link,
+.product-image,
+.product-title {
+  list-style-type: none;
+  text-decoration: none;
+}
+
+.product-image {
+  list-style-type: none;
+  border: 3px solid #dbdbdb;
+}
+
+.product-image.sausages {
+  width: 450px;
+  height: 300px;
+}
+
+.product-image.milks {
+  width: 300px;
+  height: 450px;
+  text-align: center;
+}
+
+.product-image.juices {
+  width: 200px;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image.cheeses {
+  width: 350px;
+  height: 350px;
+  text-align: center;
+}
+
+.empty-promotions.sausages {
+  color: #7e7e7e;
+  font-size: 24px;
+  word-wrap: break-word;
+  line-height: 22pt;
+  width: 450px;
+  list-style-type: none;
+  text-decoration: none;
+}
+
+.empty-promotions.milks {
+  color: #7e7e7e;
+  font-size: 24px;
+  word-wrap: break-word;
+  line-height: 22pt;
+  width: 300px;
+  list-style-type: none;
+  text-decoration: none;
+}
+
+.empty-promotions.juices {
+  color: #7e7e7e;
+  font-size: 24px;
+  word-wrap: break-word;
+  line-height: 22pt;
+  width: 200px;
+  list-style-type: none;
+  text-decoration: none;
+}
+
+.empty-promotions.cheeses {
+  color: #7e7e7e;
+  font-size: 24px;
+  word-wrap: break-word;
+  line-height: 22pt;
+  width: 350px;
+  list-style-type: none;
+  text-decoration: none;
+}
+
+.product-title {
+  color: #dbdbdb;
+  font-size: 24px;
+  word-wrap: break-word;
+}
+
+.product-title.sausages {
+  width: 450px;
+}
+
+.product-title.milks {
+  width: 300px;
+}
+
+.product-title.juices {
+  width: 200px;
+}
+
+.product-title.cheeses {
+  width: 350px;
+}
+
+.product-info {
+    background-color: #222222;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.product-li {
+  list-style-type: none;
+}
+
+.product-price.sausages {
+  width: 450px;
+  color: #7e7e7e;
+  font-size: 24px;
+  line-height: 22pt;
+  list-style-type: none;
+  text-decoration: none;
+}
+
+.product-price.milks {
+  width: 300px;
+  color: #7e7e7e;
+  font-size: 24px;
+  line-height: 22pt;
+  list-style-type: none;
+  text-decoration: none;
+}
+
+.product-price.juices {
+  width: 200px;
+  color: #7e7e7e;
+  font-size: 24px;
+  line-height: 22pt;
+  list-style-type: none;
+  text-decoration: none;
+}
+
+.product-price.cheeses {
+  width: 350px;
+  color: #7e7e7e;
+  font-size: 24px;
+  line-height: 22pt;
+  list-style-type: none;
+  text-decoration: none;
+}
+</style>
+
+<p class="category-title">Products of the "{{ category.title }}" category</p>
+<div style="background-color: #222222; display: inline-block; width: 1500px; margin-left: 100px; padding: 10px;">
+  <p class="category-description-title">Description:</p>
+  {% if category.description %}
+    <p class="category-description">{{ category.description }}</p>
+  {% else %}
+    <p class="category-description">The category does not contain a description</p>
+  {% endif %}
+</div>
+<ul class="product-list">
   {% for product in category.products.all %}
-    <li style="display: inline-block; margin-right: 2%; margin-bottom: 3%;"><a href="{% url 'product'%}?id={{product.id}}" style="list-style-type: none; text-decoration: none;">
-      {% if category.title == 'Колбасы' %}
-        <img style="list-style-type: none; border: 3px solid #dbdbdb; width: 300px; height: 200px;" src="{{product.image}}">
-      {% else %}
-        <img style="list-style-type: none; border: 3px solid #dbdbdb; width: 200px; height: 300px;" src="{{product.image}}">
-      {% endif %}
-      {% if product.category.title == 'Колбасы' %}
-        <p style="list-style-type: none; text-decoration: none; color: #7e7e7e; font-size: 24px; word-wrap: break-word; width: 300px; "><a>{{ product.title }}</a></p>
-      {% else %}
-        <p style="list-style-type: none; text-decoration: none; color: #7e7e7e; font-size: 24px; word-wrap: break-word; width: 200px;"><a>{{ product.title }}</a></p>
-      {% endif %}
-    </a></li>
+    <li>
+      <div class="product-info">
+        <a href="{% url 'product' %}?id={{product.id}}" class="product-link">
+          {% if category.title == 'Колбасы' %}
+            <img class="product-image sausages" src="{{product.image}}">
+            <div style="list-style-type: none;">
+              <p class="product-title sausages">{{ product.title }}</p>
+              <div class="product-price sausages">Price: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
+              <div class="product-price sausages">Price without promotions: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
+              <div class="empty-promotions sausages">
+                {% if product.promotions.all %}
+                  <span class="empty-promotions sausages">All discount amount:</span>
+                {% for promotion in product.promotions.all %}
+                  <div class="product-price sausages"><span style="color: #dbdbdb;">{{ promotion.discount_amount }}</span>%</div>
+                {% endfor %}
+                {% else %}
+                  <p class="empty-promotions sausages">No promotions are valid for the product</p>
+                {% endif %}
+              </div>
+            </div>
+          {% elif category.title == 'Молочные продукты' %}
+            <img class="product-image milks" src="{{product.image}}">
+            <div style="list-style-type: none;">
+              <p class="product-title milks">{{ product.title }}</p>
+              <div class="product-price milks">Price: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
+              <div class="product-price milks">Price without promotions: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
+              <div class="empty-promotions milks">
+                {% if product.promotions.all %}
+                  <span class="empty-promotions milks">All discount amount:</span>
+                {% for promotion in product.promotions.all %}
+                  <div class="product-price milks"><span style="color: #dbdbdb;">{{ promotion.discount_amount }}</span>%</div>
+                {% endfor %}
+              {% else %}
+                <p class="empty-promotions milks">No promotions are valid for the product</p>
+              {% endif %}
+              </div>
+            </div>
+          {% elif category.title == 'Соки' %}
+            <img class="product-image juices" src="{{product.image}}">
+            <div style="list-style-type: none;">
+              <p class="product-title juices">{{ product.title }}</p>
+              <div class="product-price juices">Price: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
+              <div class="product-price juices">Price without promotions: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
+              <div class="empty-promotions juices">
+                {% if product.promotions.all %}
+                  <span class="empty-promotions juices">All discount amount:</span>
+                {% for promotion in product.promotions.all %}
+                  <div class="product-price juices"><span style="color: #dbdbdb;">{{ promotion.discount_amount }}</span>%</div>
+                {% endfor %}
+              {% else %}
+                <p class="empty-promotions juices">No promotions are valid for the product</p>
+              {% endif %}
+              </div>
+            </div>
+          {% elif category.title == 'Сыры' %}
+            <img class="product-image cheeses" src="{{product.image}}">
+            <div style="list-style-type: none;">
+              <p class="product-title cheeses">{{ product.title }}</p>
+              <div class="product-price cheeses">Price: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
+              <div class="product-price cheeses">Price without promotions: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
+              <div class="empty-promotions cheeses">
+                {% if product.promotions.all %}
+                  <span class="empty-promotions cheeses">All discount amount:</span>
+                {% for promotion in product.promotions.all %}
+                  <div class="product-price cheeses"><span style="color: #dbdbdb;">{{ promotion.discount_amount }}</span>%</div>
+                {% endfor %}
+              {% else %}
+                <p class="empty-promotions cheeses">No promotions are valid for the product</p>
+              {% endif %}
+              </div>
+            </div>
+          {% endif %}
+        </a>
+      </div>
+    </li>
   {% endfor %}
+</ul>
 {% endblock %}

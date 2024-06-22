@@ -1,7 +1,26 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-<p>Logged out!</p>
 
-<a href="{% url 'login'%}">Click here to login again.</a>
+<style>
+ .main-class {
+    color: #7e7e7e;
+    font-size: 28px;
+    background-color: #222222;
+    padding: 20px;
+    max-width: 600px;
+    margin: auto;
+    text-align: center;
+  }
+ .password-reset {
+    color: #dbdbdb;
+    text-decoration: none;
+  }
+</style>
+
+<div class="main-class">
+  <p>Logged out!</p>
+  <a href="{% url 'login'%}" class="password-reset">Click here to login again.</a>
+</div>
+
 {% endblock %}

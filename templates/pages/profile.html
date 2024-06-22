@@ -1,37 +1,203 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-    {% if client_data %}
-        <h5>Your profile data:</h5>
+<style>
+.client-data {
+    background-color: #181818;
+    padding: 20px;
+    margin-bottom: 20px;
+    color: #7e7e7e;
+  }
+.client-data h2 {
+    color: #7e7e7e;
+  }
+.client-data ul {
+    list-style-type: none;
+  }
+.client-data li {
+    margin-bottom: 10px;
+  }
+.client-data a {
+    color: #dbdbdb;
+    text-decoration: none;
+  }
+  .client-data-funds {
+    background-color: #222222;
+    padding: 20px;
+    margin-bottom: 20px;
+    color: #7e7e7e;
+  }
+.key-text {
+    color: #7e7e7e;
+    font-size: 28px;
+  }
+.value-text {
+    color: #dbdbdb;
+    font-size: 28px;
+  }
+.add-funds-form {
+    background-color: #222222;
+    padding: 20px;
+    color: #7e7e7e;
+  }
+.add-funds-form h1 {
+    color: #7e7e7e;
+  }
+.add-funds-form input[type="submit"] {
+    background-color: #2d2d2d;
+    color: #7e7e7e;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+  }
+  .product-title {
+  color: #dbdbdb;
+  font-size: 24px;
+  word-wrap: break-word;
+}
+
+.product-title.sausages {
+  width: 450px;
+}
+
+.product-title.milks {
+  width: 300px;
+}
+
+.product-title.juices {
+  width: 200px;
+}
+
+.product-title.cheeses {
+  width: 350px;
+}
+.product-image {
+  list-style-type: none;
+  border: 3px solid #dbdbdb;
+}
+
+.product-image.sausages {
+  width: 450px;
+  height: 300px;
+}
+
+.product-image.milks {
+  width: 300px;
+  height: 450px;
+}
+
+.product-image.juices {
+  width: 200px;
+  height: 400px;
+}
+
+.product-image.cheeses {
+  width: 350px;
+  height: 350px;
+}
+.product-info {
+    background-color: #222222;
+    padding: 10px;
+    display: inline-block; /* Изменено для корректного отображения фона вокруг содержимого */
+}
+</style>
+
+{% if client_data %}
+    <div class="client-data">
+        <h1>Your profile data:</h1>
         <ul>
             {% for key, value in client_data.items %}
-                <li> {{key}}: {{value}} </li>
+                {% if key == "money" %}
+                  <li><span class="key-text">{{key}}</span>: <span class="value-text">{{value}}</span> <span class="key-text">RUB</span></li>
+                {% else %}
+                  <li><span class="key-text">{{key}}</span>: <span class="value-text">{{value}}</span></li>
+                {% endif %}
             {% endfor %}
         </ul>
-        {% if client_products %}
-            <h4>Your products:</h4>
+        {% if products_with_quantities %}
+            <h1>Your orders:</h1>
             <ul>
-                {% for product in client_products %}
-                    <li> <a href="{% url 'product' %}?id={{ product.id }}"> {{ product.title }}</a> </li>
+                {% for item in products_with_quantities %}
+                    <li>
+                        <div class="product-info">
+                            <a href="{% url 'product' %}?id={{ item.product.id }}" class="product-style">
+                                {% if item.product.category.title == 'Колбасы' %}
+                                    <img class="product-image sausages" src="{{item.product.image}}">
+                                    <p class="product-title sausages">{{ item.product.title }}</p>
+                                {% elif item.product.category.title == 'Молочные продукты' %}
+                                    <img class="product-image milks" src="{{item.product.image}}">
+                                    <p class="product-title milks">{{ item.product.title }}</p>
+                                {% elif item.product.category.title == 'Соки' %}
+                                    <img class="product-image juices" src="{{item.product.image}}">
+                                    <p class="product-title juices">{{ item.product.title }}</p>
+                                {% elif item.product.category.title == 'Сыры' %}
+                                    <img class="product-image cheeses" src="{{item.product.image}}">
+                                    <p class="product-title cheeses">{{ item.product.title }}</p>
+                                {% endif %}
+                                <span class="key-text">Quantity:</span> <span class="value-text">{{ item.quantity }}</span>
+                            </a>
+                        </div>
+                    </li>
                 {% endfor %}
             </ul>
         {% else %}
             <h4>You have not purchased any products yet.</h4>
         {% endif %}
+    </div>
+{% else %}
+    <p class="client-data">No client data to show..</p>
+{% endif %}
 
-    {% else %}
-        <p>No client data to show..</p>
-    {% endif %}
+<div style="background-color: #181818; padding: 10px; display: inline-block;">
+  <h4 class="client-data-funds">To add funds to your account please use form below:</h4>
 
-    <h4> To add funds to your account please use form below: </h4>
+  {% if form_errors %}
+      <h5 class="client-data">{{ form_errors }}</h5>
+  {% endif %}
 
-    {% if form_errors %}
-        <h5>{{ form_errors }}</h5>
-    {% endif %}
+  <form action="/profile/" method="POST" class="add-funds-form">
+      {% csrf_token %}
+      {{ form }}
+      <input type="submit" value="Add funds">
+  </form>
+</div>
 
-    <form action="/profile/" method="POST">
-        {% csrf_token %}
-        {{ form }}
-        <input type="submit" value="Add funds">
-    </form>
 {% endblock %}
+
+
+
+
+<!-- 
+<style>
+.empty-cart-message {
+    color: #dbdbdb;
+    font-size: 24px;
+}
+.shopping-question {
+    color: #dbdbdb;
+    font-size: 32px;
+    line-height: 0pt;
+}
+.product-list {
+    list-style-type: none;
+    padding: 0;
+}
+.product-item {
+    margin-bottom: 10px;
+}
+</style>
+
+<p class="empty-cart-message">Your shopping cart is still empty...</p>
+<p class="shopping-question">Do you want to go shopping?</p>
+
+{% if products %}
+    <h2>Ваши продукты:</h2>
+    {{ products }}
+    <ul class="product-list">
+      {% for product in products %}
+          <li class="product-item">{{ product }}</li>
+      {% endfor %}
+    </ul>
+{% else %}
+    <p>У вас нет продуктов.</p>
+{% endif %} -->

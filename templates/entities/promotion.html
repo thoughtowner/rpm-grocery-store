@@ -1,18 +1,221 @@
 {% extends "base_generic.html" %}
 {% block content %}
-  <p style="color: #7e7e7e; font-size: 32px; text-align: center;">Products of the "{{ promotion.title }}" promotion</p>
+<style>
+.promotion-title {
+  color: #7e7e7e;
+  font-size: 32px;
+  text-align: center;
+}
+
+.promotion-description-title {
+  color: #7e7e7e;
+  font-size: 28px;
+  margin-left: 100px;
+}
+
+.promotion-description {
+  color: #dbdbdb;
+  font-size: 28px;
+  margin-left: 20px;
+}
+
+.product-list li {
+  display: inline-block;
+  margin-right: 2%;
+  margin-bottom: 3%;
+}
+
+.product-link,
+.product-image,
+.product-title {
+  list-style-type: none;
+  text-decoration: none;
+}
+
+.product-image {
+  border: 3px solid #dbdbdb;
+}
+
+.product-image.sausage {
+  width: 300px;
+  height: 200px;
+}
+
+.product-image.other {
+  width: 200px;
+  height: 300px;
+}
+
+.product-title {
+  color: #dbdbdb;
+  font-size: 24px;
+  word-wrap: break-word;
+}
+
+.product-title.sausage {
+  width: 300px;
+}
+
+.product-title.other {
+  width: 200px;
+}
+
+.promotion-list li {
+  display: inline-block;
+  margin-right: 2%;
+  margin-bottom: 3%;
+}
+
+.promotion-link,
+.promotion-image,
+.promotion-title {
+  list-style-type: none;
+  text-decoration: none;
+}
+
+.promotion-image {
+  border: 3px solid #dbdbdb;
+  width: 450px;
+  height: 300px;
+}
+
+.category-info {
+    background-color: #222222;
+    padding: 10px;
+    display: inline-block;
+}
+
+.product-title {
+  color: #dbdbdb;
+  font-size: 24px;
+  word-wrap: break-word;
+}
+
+.product-title.sausages {
+  width: 450px;
+}
+
+.product-title.milks {
+  width: 300px;
+}
+
+.product-title.juices {
+  width: 200px;
+}
+
+.product-title.cheeses {
+  width: 350px;
+}
+
+.product-image {
+  list-style-type: none;
+  border: 3px solid #dbdbdb;
+}
+
+.product-image.sausages {
+  width: 450px;
+  height: 300px;
+}
+
+.product-image.milks {
+  width: 300px;
+  height: 450px;
+  text-align: center;
+}
+
+.product-image.juices {
+  width: 200px;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image.cheeses {
+  width: 350px;
+  height: 350px;
+  text-align: center;
+}
+
+.product-price.sausages {
+  width: 450px;
+  color: #7e7e7e;
+  font-size: 24px;
+  line-height: 22pt;
+  list-style-type: none;
+  text-decoration: none;
+}
+
+.product-price.milks {
+  width: 300px;
+  color: #7e7e7e;
+  font-size: 24px;
+  line-height: 22pt;
+  list-style-type: none;
+  text-decoration: none;
+}
+
+.product-price.juices {
+  width: 200px;
+  color: #7e7e7e;
+  font-size: 24px;
+  line-height: 22pt;
+  list-style-type: none;
+  text-decoration: none;
+}
+
+.product-price.cheeses {
+  width: 350px;
+  color: #7e7e7e;
+  font-size: 24px;
+  line-height: 22pt;
+  list-style-type: none;
+  text-decoration: none;
+}
+</style>
+
+<p class="promotion-title">Products of the "{{ promotion.title }}" promotion</p>
+<div style="background-color: #222222; display: inline-block; width: 1500px; margin-left: 100px; padding: 10px;">
+  <p class="promotion-description-title">Description:</p>
+  {% if promotion.description %}
+    <p class="promotion-description">{{ promotion.description }}</p>
+  {% else %}
+    <p class="promotion-description">The promotion does not contain a description</p>
+  {% endif %}
+</div>
+<ul class="product-list">
   {% for product in promotion.products.all %}
-    <li style="display: inline-block; margin-right: 2%; margin-bottom: 3%;"><a href="{% url 'product'%}?id={{product.id}}" style="list-style-type: none; text-decoration: none;">
-      {% if product.category.title == 'Колбасы' %}
-        <img style="list-style-type: none; border: 3px solid #dbdbdb; width: 300px; height: 200px;" src="{{product.image}}">
-      {% else %}
-        <img style="list-style-type: none; border: 3px solid #dbdbdb; width: 200px; height: 300px;" src="{{product.image}}">
-      {% endif %}
-      {% if product.category.title == 'Колбасы' %}
-        <p style="list-style-type: none; text-decoration: none; color: #7e7e7e; font-size: 24px; word-wrap: break-word; width: 300px; "><a>{{ product.title }}</a></p>
-      {% else %}
-        <p style="list-style-type: none; text-decoration: none; color: #7e7e7e; font-size: 24px; word-wrap: break-word; width: 200px;"><a>{{ product.title }}</a></p>
-      {% endif %}
-    </a></li>
+    <li>
+      <div class="category-info">
+        <a href="{% url 'product' %}?id={{product.id}}" class="product-link">
+          {% if product.category.title == 'Колбасы' %}
+            <img class="product-image sausages" src="{{product.image}}">
+            <div style="list-style-type: none;">
+              <p class="product-title sausages">{{ product.title }}</p>
+              <div class="product-price sausages">Price: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
+              <div class="product-price sausages">Price without promotions: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
+          {% elif product.category.title == 'Молочные продукты' %}
+            <img class="product-image milks" src="{{product.image}}">
+            <div style="list-style-type: none;">
+              <p class="product-title milks">{{ product.title }}</p>
+              <div class="product-price milks">Price: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
+              <div class="product-price milks">Price without promotions: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
+          {% elif product.category.title == 'Соки' %}
+            <img class="product-image juices" src="{{product.image}}">
+            <div style="list-style-type: none;">
+              <p class="product-title juices">{{ product.title }}</p>
+              <div class="product-price juices">Price: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
+              <div class="product-price juices">Price without promotions: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
+          {% elif product.category.title == 'Сыры' %}
+            <img class="product-image cheeses" src="{{product.image}}">
+            <div style="list-style-type: none;">
+              <p class="product-title cheeses">{{ product.title }}</p>
+              <div class="product-price cheeses">Price: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
+              <div class="product-price cheeses">Price without promotions: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
+          {% endif %}
+        </a>
+      </div>
+    </li>
   {% endfor %}
+</ul>
 {% endblock %}

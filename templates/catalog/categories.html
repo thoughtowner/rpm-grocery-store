@@ -1,16 +1,63 @@
 {% extends "base_generic.html" %}
 {% block content %}
-  <p style="color: #7e7e7e; font-size: 32px; text-align: center;">Categories</p>
-      {% if categories_list %}
-      <ul>
-        {% for category in categories_list %}
-          <li style="display: inline-block; margin-right: 2%;"><a href="{% url 'category'%}?id={{category.id}}" style="list-style-type: none; text-decoration: none;">
-            <img style="list-style-type: none; border: 3px solid #dbdbdb; width: 300px; height: 200px;" src="{{category.image}}">
-            <div style="list-style-type: none; text-decoration: none; color: #dbdbdb; font-size: 24px;"><a>{{ category.title }}</a></div>
-          </a></li>
-        {% endfor %}
-      </ul>
-      {% else %}
-        <p style="color: #7e7e7e;">There are no categories for now.</p>
-      {% endif %}
+<style>
+.categories-title {
+  color: #7e7e7e;
+  font-size: 32px;
+  text-align: center;
+}
+
+.category-list li {
+  display: inline-block;
+  margin-right: 2%;
+}
+
+.category-link,
+.category-image,
+.category-title {
+  list-style-type: none;
+  text-decoration: none;
+}
+
+.category-image {
+  border: 3px solid #dbdbdb;
+  width: 350px;
+  height: 225px;
+}
+
+.category-title {
+  color: #dbdbdb;
+  font-size: 24px;
+  line-height: 0%;
+}
+
+.no-categories {
+  color: #7e7e7e;
+}
+
+.category-info {
+    background-color: #222222;
+    padding: 10px;
+    display: inline-block;
+    margin-bottom: 30px;
+}
+</style>
+
+<p class="categories-title">Categories</p>
+{% if categories_list %}
+<ul class="category-list">
+  {% for category in categories_list %}
+    <li>
+      <div class="category-info">
+        <a href="{% url 'category' %}?id={{category.id}}" class="category-link">
+          <img class="category-image" src="{{category.image}}">
+          <p class="category-title">{{ category.title }}</p>
+        </a>
+      </div>
+    </li>
+  {% endfor %}
+</ul>
+{% else %}
+  <p class="no-categories">There are no categories for now.</p>
+{% endif %}
 {% endblock %}

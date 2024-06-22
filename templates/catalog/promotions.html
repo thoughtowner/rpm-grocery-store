@@ -1,10 +1,56 @@
 {% extends "base_generic.html" %}
 {% block content %}
-  <p style="color: #7e7e7e; font-size: 32px; text-align: center;">Promotions</p>
+<style>
+.promotions-title {
+  color: #7e7e7e;
+  font-size: 32px;
+  text-align: center;
+}
+
+.promotion-list li {
+  display: inline-block;
+  margin-right: 2%;
+  margin-bottom: 3%;
+}
+
+.promotion-link,
+.promotion-image,
+.promotion-title {
+  list-style-type: none;
+  text-decoration: none;
+}
+
+.promotion-image {
+  border: 3px solid #dbdbdb;
+  width: 450px;
+  height: 300px;
+}
+
+.promotion-title {
+  color: #dbdbdb;
+  font-size: 24px;
+  word-wrap: break-word;
+  width: 450px;
+}
+
+.category-info {
+    background-color: #222222;
+    padding: 10px;
+    display: inline-block;
+}
+</style>
+
+<p class="promotions-title">Promotions</p>
+<ul class="promotion-list">
   {% for promotion in promotions_list %}
-    <li style="display: inline-block; margin-right: 2%; margin-bottom: 3%;"><a href="{% url 'promotion'%}?id={{promotion.id}}" style="list-style-type: none; text-decoration: none;">
-      <img style="list-style-type: none; border: 3px solid #dbdbdb; width: 450px; height: 300px;" src="{{promotion.image}}">
-      <p style="list-style-type: none; text-decoration: none; color: #7e7e7e; font-size: 24px; word-wrap: break-word; width: 450px; "><a>{{ promotion.title }}</a></p>
-    </a></li>
+    <li>
+      <div class="category-info">
+        <a href="{% url 'promotion' %}?id={{promotion.id}}" class="promotion-link">
+          <img class="promotion-image" src="{{promotion.image}}">
+          <p class="promotion-title">{{ promotion.title }}</p>
+        </a>
+      </div>
+    </li>
   {% endfor %}
+</ul>
 {% endblock %}

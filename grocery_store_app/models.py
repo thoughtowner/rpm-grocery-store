@@ -305,7 +305,7 @@ class Client(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
 
 class ClientToProduct(UUIDMixin, CreatedDatetimeMixin):
     quantity = models.PositiveSmallIntegerField(_('quantity'), null=False, blank=False, validators=[check_quantity,], default=1)
-
+    # clientProduct.quantity = n
     client = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name=_('client'))
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name=_('product'))
 

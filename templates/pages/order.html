@@ -1,0 +1,17 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h4> You are going to buy: {{ product.title }}</h4>
+    <h5> The price: {{ product.price }}</h5>
+    <h5> Funds available: {{ money }}</h5>
+    {% if product.price <= money %}
+        <form action="/buy/?id={{ product.id }}" method="POST">
+            {% csrf_token %}
+            <input type="submit" value="Buy it!">
+        </form>
+    {% else %}
+        <h5> Insufficient funds. You can add funds in <a href="{% url 'profile' %}">profile page</a>.</h5>
+    {% endif %}
+{% else %}
+        <h5> You already have product {{product.title}}!</h5>
+{% endblock %}

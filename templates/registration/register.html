@@ -1,10 +1,54 @@
 {% extends "base_generic.html" %}
 {% block content %}
+
+<style>
+ .registration-form {
+    color: #7e7e7e;
+    background-color: #181818;
+    padding: 20px;
+    max-width: 400px;
+    margin: auto;
+    text-align: center;
+  }
+ .error-message {
+    color: #2d2d2d;
+    margin-bottom: 10px;
+  }
+  label {
+    display: block;
+    margin-top: 10px;
+    font-size: 28px;
+    margin-bottom: 0;
+  }
+  input[type="text"], input[type="email"], input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    box-sizing: border-box;
+  }
+  .reg-button[type="submit"] {
+    background-color: #2d2d2d;
+    color: #7e7e7e;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border: none;
+  }
+</style>
+
 {% if request.user.is_authenticated %}
-    <p>You are already logged in</p>
+    <p class="registration-form">You are already logged in</p>
 {% else %}
-    {{ errors }}
-    <form action="{% url 'register' %}" method="POST">
+    {% if errors %}
+        {% for error in errors %}
+            <p class="error-message">{{ error }}</p>
+        {% endfor %}
+    {% endif %}
+    <form action="{% url 'register' %}" method="POST" class="registration-form">
         {% csrf_token %}
         <label for="username">Username</label><br>
         {{ form.username }} <br>
@@ -18,7 +62,7 @@
         {{ form.password1 }}<br>
         <label for="password2">Again</label><br>
         {{ form.password2 }}<br>
-        <button type="submit"> click</button>
+        <button type="submit" class="reg-button">Register</button>
     </form>
 {% endif %}
 

@@ -1,5 +1,6 @@
 from django.urls import include, path
 from rest_framework import routers
+from django.contrib.auth import views as auth_views
 
 from . import views
 
@@ -25,7 +26,9 @@ urlpatterns = [
     path('reviews/', views.ReviewListView.as_view(), name='reviews'),
     # path('review/', views.view_review, name='review'),
     path('clients/', views.ClientListView.as_view(), name='clients'),
-    path('profile/', views.profile, name='profile'),
-    path('order/', views.order, name='order'),
+    path('accounts/profile/', views.profile, name='profile'),
+    path('order/<uuid:product_id>', views.order, name='order'),
     path('cancel_order/', views.cancel_order, name='cancel_order'),
+    # path('login/', auth_views.LoginView.as_view(), name='login'),
+    # path('accounts/logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),
 ]

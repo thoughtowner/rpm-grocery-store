@@ -3,33 +3,107 @@
 <head>
   {% block title %}<title>Grocary store</title>{% endblock %}
   {% block sidebar %}
-  <ul style="background-color: #121212;">
+  <style>
+   .sidebar-bg {
+      background-color: #121212;
+    }
+   .auth-container {
+      border: 7px solid #181818;
+      margin-right: 5%;
+      display: flex;
+      justify-content: space-between;
+      background-color: #181818;
+      box-sizing: border-box;
+      list-style-type: none;
+      font-size: 28px;
+      margin-bottom: 3%;
+    }
+   .menu-item,.hello-user {
+      border: 5px solid #222222;
+      padding: 1em;
+    }
+   .store-name {
+      color: #7e7e7e;
+      font-size: 36px;
+    }
+    .rpm-grocery-store-log {
+      color: #969696;
+    }
+    .rpm-grocery-store {
+      color: #969696;
+      margin-left: 505px;
+    }
+    .nav-link {
+      text-decoration: none;
+      color: #dbdbdb;
+      font-size: 36px;
+    }
+   .username-link {
+      text-decoration: none;
+      color: #dbdbdb;
+      font-size: 36px;
+    }
+    body {
+      background-color: #121212;
+      margin-left: 2%;
+      position: relative;
+    }
+    .btn-danger {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+  }
+  .nav-button {
+    margin-top: 0.0em;
+    margin-bottom: 0.12em;
+    font-size: 36px;
+    color: #dbdbdb;
+  }
+
+  </style>
+  <ul class="sidebar-bg">
     {% if user.is_authenticated %}
-    <div style="border: 7px solid #181818; margin-right: 5%; display: flex; justify-content: space-between; background-color: #181818; box-sizing: border-box; list-style-type: none; font-size: 28px; margin-bottom: 3%;">
-      <div style="border: 5px solid #222222; padding: 1em;">
-        <li><a href="{% url 'categories' %}" style="text-decoration: none; color: #dbdbdb;">Categories</a></li>
-        <!-- <li><a href="{% url 'products' %}" style="text-decoration: none; color: #dbdbdb;">Products</a></li> -->
-        <li><a href="{% url 'promotions' %}" style="text-decoration: none; color: #dbdbdb;">Promotions</a></li>
+    <div class="auth-container">
+      <div class="menu-item">
+        <li><a href="{% url 'categories' %}" class="nav-link">Categories</a></li>
+        <!-- <li><a href="{% url 'products' %}" class="nav-link">Products</a></li> -->
+        <li><a href="{% url 'promotions' %}" class="nav-link">Promotions</a></li>
       </div>
       <div>
-        <h1 style="color: #7e7e7e;">RPM GROCERY STORE</h1>
+        <h1 class="rpm-grocery-store-log">RPM GROCERY STORE</h1>
       </div>
-      <div style="border: 5px solid #222222; padding: 1em;">
-        <li style="color: #7e7e7e;">Hello, <a href="{% url 'profile' %}" style="text-decoration: none; color: #dbdbdb;">{{ user.username }}</a>!</li>
-        <li><a href="{% url 'homepage' %}" style="text-decoration: none; color: #dbdbdb;">Homepage</a></li>
-        <li><a href="{% url 'logout' %}?next={{request.path}}" style="text-decoration: none; color: #dbdbdb;">Log out</a></li>
+      <div class="menu-item hello-user">
+        <li class="store-name">Hello, <a href="{% url 'profile' %}" class="username-link">{{ user.username }}</a>!</li>
+        <li><a href="{% url 'homepage' %}" class="nav-link">Homepage</a></li>
+        <form action="/accounts/logout/" method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger"><p class="nav-button">Logout</p></button>
+        </form>
       </div>
     </div>
     {% else %}
-      <li><a href="{% url 'homepage' %}">Homepage</a></li>
-      <li> <a href="{% url 'login' %}?next={{request.path}}">Log in</a></li>
-      <li> <a href="{% url 'register' %}">Register</a></li>
+      <div class="auth-container">
+        <div>
+          <h1 class="rpm-grocery-store">RPM GROCERY STORE</h1>
+        </div>
+        <div class="menu-item hello-user">
+          <li><a href="{% url 'homepage' %}" class="nav-link">Homepage</a></li>
+          <form action="/accounts/login/" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger"><p class="nav-button">Login</p></button>
+          </form>
+          <li> <a href="{% url 'register' %}" class="nav-link">Register</a></li>
+        </div>
+      </div>
     {% endif %}
   </ul>
   {% endblock %}
 </head>
 
-<body style="background-color: #121212; margin-left: 2%; position: relative;">
+<body>
   {% block content %}{% endblock %}
   {% if is_paginated %}
   <div class="pagination">
