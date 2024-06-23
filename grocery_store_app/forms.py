@@ -70,14 +70,3 @@ class AddFundsForm(Form):
             add_error(ValidationError('you can only add positive amount of money!'))
             return False
         return True
-
-
-# from.models import Product, ClientToProduct
-
-# class OrderForm(forms.Form):
-#     product = ModelChoiceField(queryset=Product.objects.all(), empty_label="Выберите продукт")
-#     quantity = IntegerField(min_value=1, label="Количество")
-
-#     def __init__(self, *args, **kwargs):
-#         super(OrderForm, self).__init__(*args, **kwargs)
-#         self.fields['product'].widget.attrs.update({'onchange': 'this.form.submit();'})
