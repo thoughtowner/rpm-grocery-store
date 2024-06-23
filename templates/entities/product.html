@@ -180,12 +180,20 @@
       {% endif %}
     </div>
     <div class="rating">Rating: <a class="rating-link">{{ average_rating }}</a>/5</div>
-    <form method="post" action="{% url 'profile' %}">
+    <!-- <form method="GET" action="{% url 'order'%}?id={{product.id}}">
       {% csrf_token %}
       <label for="quantity" style="color: #7e7e7e;">Quantity:</label>
       <input type="number" id="quantity" name="quantity" min="1" required>
       <button type="submit">Order</button>
-    </form>
+    </form> -->
+    <form method="GET" action="{% url 'order' %}">
+      {% csrf_token %}
+      <input type="hidden" name="id" value="{{ product.id }}">
+      <label for="quantity" style="color: #7e7e7e;">Quantity:</label>
+      <input type="number" id="quantity" name="quantity" min="1" required>
+      <button type="submit">Order</button>
+    </form>    
+    <!-- <p style="color: #7e7e7e;">Click here to place an <a href="{% url 'order'%}?id={{product.id}}" style="text-decoration: none; color: #dbdbdb;">order</a></p> -->
   </div>
   <div class="product-info-right">
     <li>

@@ -192,68 +192,24 @@
             <img class="product-image sausages" src="{{product.image}}">
             <div style="list-style-type: none;">
               <p class="product-title sausages">{{ product.title }}</p>
-              <div class="product-price sausages">Price: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
-              <div class="product-price sausages">Price without promotions: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
-              <div class="empty-promotions sausages">
-                {% if product.promotions.all %}
-                  <span class="empty-promotions sausages">All discount amount:</span>
-                {% for promotion in product.promotions.all %}
-                  <div class="product-price sausages"><span style="color: #dbdbdb;">{{ promotion.discount_amount }}</span>%</div>
-                {% endfor %}
-                {% else %}
-                  <p class="empty-promotions sausages">No promotions are valid for the product</p>
-                {% endif %}
               </div>
             </div>
           {% elif category.title == 'Молочные продукты' %}
             <img class="product-image milks" src="{{product.image}}">
             <div style="list-style-type: none;">
               <p class="product-title milks">{{ product.title }}</p>
-              <div class="product-price milks">Price: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
-              <div class="product-price milks">Price without promotions: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
-              <div class="empty-promotions milks">
-                {% if product.promotions.all %}
-                  <span class="empty-promotions milks">All discount amount:</span>
-                {% for promotion in product.promotions.all %}
-                  <div class="product-price milks"><span style="color: #dbdbdb;">{{ promotion.discount_amount }}</span>%</div>
-                {% endfor %}
-              {% else %}
-                <p class="empty-promotions milks">No promotions are valid for the product</p>
-              {% endif %}
               </div>
             </div>
           {% elif category.title == 'Соки' %}
             <img class="product-image juices" src="{{product.image}}">
             <div style="list-style-type: none;">
               <p class="product-title juices">{{ product.title }}</p>
-              <div class="product-price juices">Price: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
-              <div class="product-price juices">Price without promotions: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
-              <div class="empty-promotions juices">
-                {% if product.promotions.all %}
-                  <span class="empty-promotions juices">All discount amount:</span>
-                {% for promotion in product.promotions.all %}
-                  <div class="product-price juices"><span style="color: #dbdbdb;">{{ promotion.discount_amount }}</span>%</div>
-                {% endfor %}
-              {% else %}
-                <p class="empty-promotions juices">No promotions are valid for the product</p>
-              {% endif %}
               </div>
             </div>
           {% elif category.title == 'Сыры' %}
             <img class="product-image cheeses" src="{{product.image}}">
             <div style="list-style-type: none;">
               <p class="product-title cheeses">{{ product.title }}</p>
-              <div class="product-price cheeses">Price: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
-              <div class="product-price cheeses">Price without promotions: <span style="color: #dbdbdb;">{{ product.price }}</span> RUB</div>
-              <div class="empty-promotions cheeses">
-                {% if product.promotions.all %}
-                  <span class="empty-promotions cheeses">All discount amount:</span>
-                {% for promotion in product.promotions.all %}
-                  <div class="product-price cheeses"><span style="color: #dbdbdb;">{{ promotion.discount_amount }}</span>%</div>
-                {% endfor %}
-              {% else %}
-                <p class="empty-promotions cheeses">No promotions are valid for the product</p>
-              {% endif %}
               </div>
             </div>
           {% endif %}

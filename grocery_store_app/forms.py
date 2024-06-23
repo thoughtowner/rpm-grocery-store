@@ -72,12 +72,11 @@ class AddFundsForm(Form):
         return True
 
 
-# from django import forms
 # from.models import Product, ClientToProduct
 
 # class OrderForm(forms.Form):
-#     product = forms.ModelChoiceField(queryset=Product.objects.all(), empty_label="Выберите продукт")
-#     quantity = forms.IntegerField(min_value=1, label="Количество")
+#     product = ModelChoiceField(queryset=Product.objects.all(), empty_label="Выберите продукт")
+#     quantity = IntegerField(min_value=1, label="Количество")
 
 #     def __init__(self, *args, **kwargs):
 #         super(OrderForm, self).__init__(*args, **kwargs)

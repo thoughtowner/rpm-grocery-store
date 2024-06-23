@@ -297,7 +297,7 @@ class Client(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
         super().save(*args, **kwargs)
     
     class Meta:
-        db_table = '"grocery_store"."client"'
+        db_table = '"grocery_store"."clients"'
         ordering = ['user']
         verbose_name = _('client')
         verbose_name_plural = _('clients')
@@ -305,7 +305,6 @@ class Client(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
 
 class ClientToProduct(UUIDMixin, CreatedDatetimeMixin):
     quantity = models.PositiveSmallIntegerField(_('quantity'), null=False, blank=False, validators=[check_quantity,], default=1)
-    # clientProduct.quantity = n
     client = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name=_('client'))
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name=_('product'))
 

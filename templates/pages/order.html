@@ -1,17 +1,54 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-    <h4> You are going to buy: {{ product.title }}</h4>
-    <h5> The price: {{ product.price }}</h5>
-    <h5> Funds available: {{ money }}</h5>
-    {% if product.price <= money %}
-        <form action="/buy/?id={{ product.id }}" method="POST">
-            {% csrf_token %}
-            <input type="submit" value="Buy it!">
-        </form>
+<style>
+ .product-info {
+    color: #7e7e7e;
+    font-size: 28px;
+    background-color: #222222;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+ .product-title {
+    color: #dbdbdb;
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+ .price-info {
+    color: #7e7e7e;
+    font-size: 24px;
+  }
+ .order-form {
+    background-color: #222222;
+    padding: 20px;
+    display: flex;
+  }
+ .order-form label,
+ .order-form button {
+    color: #7e7e7e;
+  }
+ .order-form input[type="number"] {
+    margin-left: 10px;
+  }
+ .insufficient-funds {
+    color: #dbdbdb;
+    text-decoration: none;
+  }
+</style>
+
+<div class="product-info">
+    <h4 class="product-title">You are going to order: {{ product.title }}</h4>
+    <h5 class="price-info">The cost: {{ sum_price_quantity }}</h5>
+    <h5 class="price-info">Funds available: {{ money }}</h5>
+    
+    {% if product and quantity > 0 and sum_price_quantity <= money %}
+      <form method="post" action="{% url 'order' %}?id={{ product.id }}">
+        {% csrf_token %}
+        <input type="hidden" name="quantity" value="{{ quantity }}">
+        <button type="submit">Confirm Order</button>
+      </form>
     {% else %}
-        <h5> Insufficient funds. You can add funds in <a href="{% url 'profile' %}">profile page</a>.</h5>
+      <h5 class="insufficient-funds">Insufficient funds. You can add funds in <a href="{% url 'profile' %}" class="password-reset">profile page</a>.</h5>
     {% endif %}
-{% else %}
-        <h5> You already have product {{product.title}}!</h5>
-{% endblock %}
+  </div>
+  {% endblock %}

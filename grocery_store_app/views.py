@@ -173,10 +173,8 @@ def profile(request):
     else:
         form = AddFundsForm()
 
-    # Извлекаем объекты ClientToProduct для данного клиента
     client_products = ClientToProduct.objects.filter(client=client)
-    
-    # Собираем информацию о продуктах и их количестве
+
     products_with_quantities = [
         {'product': cp.product, 'quantity': cp.quantity} for cp in client_products
     ]
@@ -194,36 +192,42 @@ def profile(request):
 
 
 
+from django.contrib.sessions.models import Session
+
 @decorators.login_required
-def order(request, product_id):
-    # product_id = request.GET.get('id', None)
+def order(request):
+    product_id = request.GET.get('id', None)
     if not product_id:
         return redirect('products')
     try:
         product = Product.objects.get(id=product_id) if product_id else None
-    except exceptions.ValidationError:
+    except exceptions.ObjectDoesNotExist:
         return redirect('products')
     if not product:
         return redirect('products')
-    
-    print(request.user)
 
     client = Client.objects.get(user=request.user)
 
-    client_to_product = ClientToProduct.objects.create(client_id=client.id, product_id=product_id)
+    quantity = int(request.session.get('quantity', 0))
 
-    quantity = int(request.POST.get('quantity', 0))
+    if request.method == 'GET' and 'quantity' in request.GET:
+        quantity = int(request.GET.get('quantity', 0))
+        request.session['quantity'] = quantity
+    
+    sum_price_quantity = quantity * product.price
 
-    print(client.products.all())
-
-    if request.method == 'POST' and client.money >= quantity * product.price: # and product not in client.products.all():
-        client.money -= quantity * product.price
-        if product not in client.products.all():
-            client.products.add(product)
+    if request.method == 'POST':
+        if client.money >= quantity * product.price:            
+            client.money -= quantity * product.price
             client.save()
-            client_to_product.quantity = quantity
-        else:
-            client_to_product.quantity += quantity
+            try:
+                client_to_product = ClientToProduct.objects.get(client_id=client.id, product_id=product_id)
+                client_to_product.quantity += quantity
+                client_to_product.save()
+            except:
+                client_to_product = ClientToProduct.objects.create(client_id=client.id, product_id=product_id, quantity=quantity)
+                client_to_product.save()
+        return redirect('profile')
 
     return render(
         request,
@@ -231,39 +235,7 @@ def order(request, product_id):
         {
             'money': client.money,
             'product': product,
+            'quantity': quantity,
+            'sum_price_quantity': sum_price_quantity,
         }
     )
-
-# @decorators.login_required
-# def cancel_order(request):
-#     product_id = request.GET.get('id', None)
-#     if not product_id:
-#         return redirect('products')
-#     try:
-#         product = Product.objects.get(id=product_id) if product_id else None
-#     except exceptions.ValidationError:
-#         return redirect('products')
-#     if not product:
-#         return redirect('products')
-    
-#     client = Client.objects.get(user=request.user)
-
-#     client_to_product = ClientToProduct.objects.get(client_id=client.id, product_id=product_id)
-
-#     if request.method == 'POST' and product in client.products.all():
-#         client.money += quantity * product.price
-#         if quantity >= client.products.quantity:
-#             client.products.remove(product)
-#         else:
-#             client_to_product.quantity -= quantity
-#         client.save()
-
-#     return render(
-#         request,
-#         'pages/cancel_order.html',
-#         {
-#             # 'user_has_access': product in client.products.all(),
-#             'money': client.money,
-#             'product': product,
-#         },
-#     )

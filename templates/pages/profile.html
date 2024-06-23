@@ -95,10 +95,24 @@
   width: 350px;
   height: 350px;
 }
+.product-list li {
+  display: inline-block;
+  margin-right: 2%;
+  margin-bottom: 3%;
+}
 .product-info {
     background-color: #222222;
     padding: 10px;
-    display: inline-block; /* Изменено для корректного отображения фона вокруг содержимого */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+.product-link,
+.product-image,
+.product-title {
+  list-style-type: none;
+  text-decoration: none;
 }
 </style>
 
@@ -116,29 +130,37 @@
         </ul>
         {% if products_with_quantities %}
             <h1>Your orders:</h1>
-            <ul>
-                {% for item in products_with_quantities %}
-                    <li>
-                        <div class="product-info">
-                            <a href="{% url 'product' %}?id={{ item.product.id }}" class="product-style">
-                                {% if item.product.category.title == 'Колбасы' %}
-                                    <img class="product-image sausages" src="{{item.product.image}}">
-                                    <p class="product-title sausages">{{ item.product.title }}</p>
-                                {% elif item.product.category.title == 'Молочные продукты' %}
-                                    <img class="product-image milks" src="{{item.product.image}}">
-                                    <p class="product-title milks">{{ item.product.title }}</p>
-                                {% elif item.product.category.title == 'Соки' %}
-                                    <img class="product-image juices" src="{{item.product.image}}">
-                                    <p class="product-title juices">{{ item.product.title }}</p>
-                                {% elif item.product.category.title == 'Сыры' %}
-                                    <img class="product-image cheeses" src="{{item.product.image}}">
-                                    <p class="product-title cheeses">{{ item.product.title }}</p>
-                                {% endif %}
-                                <span class="key-text">Quantity:</span> <span class="value-text">{{ item.quantity }}</span>
-                            </a>
-                        </div>
-                    </li>
-                {% endfor %}
+            <ul class="product-list">
+              {% for item in products_with_quantities %}
+                <li>
+                  <div class="product-info">
+                    <a href="{% url 'product' %}?id={{item.product.id}}" class="product-link">
+                      {% if item.product.category.title == 'Колбасы' %}
+                        <img class="product-image sausages" src="{{item.product.image}}">
+                        <div style="list-style-type: none;">
+                        <p class="product-title sausages">{{ item.product.title }}</p>
+                      </div>
+                      {% elif item.product.category.title == 'Молочные продукты' %}
+                        <img class="product-image milks" src="{{item.product.image}}">
+                        <div style="list-style-type: none;">
+                        <p class="product-title milks">{{ item.product.title }}</p>
+                      </div>
+                      {% elif item.product.category.title == 'Соки' %}
+                        <img class="product-image juices" src="{{item.product.image}}">
+                        <div style="list-style-type: none;">
+                        <p class="product-title juices">{{ item.product.title }}</p>
+                      </div>
+                      {% elif item.product.category.title == 'Сыры' %}
+                        <img class="product-image cheeses" src="{{item.product.image}}">
+                        <div style="list-style-type: none;">
+                        <p class="product-title cheeses">{{ item.product.title }}</p>
+                      </div>
+                      {% endif %}
+                        <span class="key-text">Quantity:</span> <span class="value-text">{{ item.quantity }}</span>
+                      </a>
+                    </div>
+                </li>
+              {% endfor %}
             </ul>
         {% else %}
             <h4>You have not purchased any products yet.</h4>
@@ -155,7 +177,7 @@
       <h5 class="client-data">{{ form_errors }}</h5>
   {% endif %}
 
-  <form action="/profile/" method="POST" class="add-funds-form">
+  <form action="{% url 'profile' %}" method="POST" class="add-funds-form">
       {% csrf_token %}
       {{ form }}
       <input type="submit" value="Add funds">
