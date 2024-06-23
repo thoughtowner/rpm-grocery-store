@@ -1,5 +1,8 @@
 from typing import Any
 
+from decimal import Decimal
+from django.utils import timezone
+
 from django.contrib.auth import decorators, mixins
 from django.core import exceptions
 from django.core import paginator as django_paginator
@@ -9,25 +12,10 @@ from django.views.generic import ListView
 from rest_framework import authentication, permissions, viewsets
 
 from .forms import AddFundsForm, RegistrationForm
-from .models import Category, Client, Product, Promotion, Review, ClientToProduct
+from .models import Category, Client, Product, Promotion, Review, ClientToProduct, ProductToPromotion
 from .serializers import (CategorySerializer, ClientSerializer,
                           ProductSerializer, PromotionSerializer,
                           ReviewSerializer)
-from django.db.models import Prefetch
-
-
-# def homepage(request):
-#     client = Client.objects.get(user=request.user)
-#     client_products = ClientToProduct.objects.filter(client=client).values_list('product', flat=True)
-#     products = Product.objects.filter(id__in=list(client_products))
-#     return render(
-#         request,
-#         'index.html',
-#         {
-#             'products': products,
-#             'client_products': client_products
-#         }
-#     )
 
 
 def homepage(request):
@@ -122,6 +110,18 @@ def create_view(model_class, context_name, template, redirect_page):
             else:
                 average_rating_rounded = round(average_rating, 1)
             context['average_rating'] = average_rating_rounded
+
+            current_date = timezone.now().date()
+            product_promotions = ProductToPromotion.objects.filter(product=product, promotion__start_date__lte=current_date, promotion__end_date__gte=current_date)
+            
+            if product_promotions.exists():
+                max_discount_amount = max(pp.promotion.discount_amount for pp in product_promotions)
+                discount_factor = Decimal((100 - max_discount_amount) / 100)
+                price_with_max_discount = product.price * discount_factor
+                context['product_promotions'] = product_promotions
+                context['price_with_max_discount_amount'] = round(price_with_max_discount, 2)
+                context['max_discount_amount'] = max_discount_amount
+
         return render(
             request,
             template,
@@ -129,35 +129,11 @@ def create_view(model_class, context_name, template, redirect_page):
         )
     return view
 
+
 view_category = create_view(Category, 'category', 'entities/category.html', 'categories')
 view_product = create_view(Product, 'product', 'entities/product.html', 'products')
 view_promotion = create_view(Promotion, 'promotion', 'entities/promotion.html', 'promotions')
 view_review = create_view(Review, 'review', 'entities/review.html', 'reviews')
-
-
-# @decorators.login_required
-# def profile(request):
-#     form_errors = ''
-#     client = Client.objects.get(user=request.user)
-#     if request.method == 'POST':
-#         form = AddFundsForm(request.POST)
-#         if form.is_valid():
-#             money = form.cleaned_data.get('money')
-#             client.money += money
-#             client.save()
-#     else:
-#         form = AddFundsForm()
-
-#     return render(
-#         request,
-#         'pages/profile.html',
-#         {
-#             'form': form,
-#             'form_errors': form_errors,
-#             'client_data': {'username': client.user.username, 'money': client.money},
-#             'client_products': client.products.all(),
-#         }
-#     )
 
 
 @decorators.login_required
@@ -189,10 +165,6 @@ def profile(request):
             'products_with_quantities': products_with_quantities,
         }
     )
-
-
-
-from django.contrib.sessions.models import Session
 
 @decorators.login_required
 def order(request):

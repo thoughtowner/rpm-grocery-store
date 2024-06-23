@@ -154,6 +154,12 @@
   list-style-type: none;
   text-decoration: none;
 }
+
+.product-link {
+  list-style-type: none;
+  text-decoration: none;
+  color: #dbdbdb;
+}
 </style>
 
 <div class="product-info-container">
@@ -167,33 +173,31 @@
     {% elif product.category.title == 'Сыры' %}
       <img class="product-image cheeses" src="{{product.image}}">
     {% endif %}
-    <div class="product-price">Price: <a class="price-link">{{ product.price }}</a> RUB</div>
-    <div class="product-price">Price without promotions: <a class="price-link">{{ product.price }}</a> RUB</div>
+    {% if product_promotions %}
+      <div class="product-price">Price: <a class="price-link">{{ price_with_max_discount_amount }}</a> RUB</div>
+      <div class="product-price">Price without promotions: <a class="price-link">{{ product.price }}</a> RUB</div>
+    {% else %}
+      <div class="product-price">Price: <a class="price-link">{{ product.price }}</a> RUB</div>
+    {% endif %}
     <div class="empty-promotions">
-      {% if product.promotions.all %}
-        <span class="empty-promotions">All discount amount:</span>
-      {% for promotion in product.promotions.all %}
-        <div class="product-price"><span style="color: #dbdbdb;">{{ promotion.discount_amount }}</span>%</div>
-      {% endfor %}
+      {% if product_promotions %}
+        <span class="empty-promotions">Current discount amounts:</span>
+        {% for pp in product_promotions %}
+          <div class="product-price"><span style="color: #dbdbdb;">{{ pp.promotion.discount_amount }}</span>%</div>
+        {% endfor %}
+      <div class="product-price">Max discount amount: <a class="price-link">{{ max_discount_amount }}</a>%</div>
       {% else %}
         <p class="empty-promotions">No promotions are valid for the product</p>
       {% endif %}
     </div>
     <div class="rating">Rating: <a class="rating-link">{{ average_rating }}</a>/5</div>
-    <!-- <form method="GET" action="{% url 'order'%}?id={{product.id}}">
-      {% csrf_token %}
-      <label for="quantity" style="color: #7e7e7e;">Quantity:</label>
-      <input type="number" id="quantity" name="quantity" min="1" required>
-      <button type="submit">Order</button>
-    </form> -->
     <form method="GET" action="{% url 'order' %}">
       {% csrf_token %}
       <input type="hidden" name="id" value="{{ product.id }}">
       <label for="quantity" style="color: #7e7e7e;">Quantity:</label>
       <input type="number" id="quantity" name="quantity" min="1" required>
       <button type="submit">Order</button>
-    </form>    
-    <!-- <p style="color: #7e7e7e;">Click here to place an <a href="{% url 'order'%}?id={{product.id}}" style="text-decoration: none; color: #dbdbdb;">order</a></p> -->
+    </form>
   </div>
   <div class="product-info-right">
     <li>
@@ -205,18 +209,22 @@
   </div>
 </div>
 <div class="category-review">
-  Category: <a class="category-link">{{ product.category.title }}</a>
+  Category: <a href="{% url 'category' %}?id={{product.category.id}}" class="product-link">{{ product.category.title }}</a>
 </div>
 <div class="category-review">
   Reviews:
-  {% for review in product.reviews.all %}
-    <div class="review">
-      <li>
-        <div class="review-user">User: <a style="color: #dbdbdb;">{{ review.client.user.username }}</a></div>
-        <div class="review-rating">Rating: <a class="rating-link">{{ review.rating }}</a>/5</div>
-        <div class="review-text">{{ review.text }}</div>
-      </li>
-    </div>
-  {% endfor %}
+  {% if product.reviews.all %}
+    {% for review in product.reviews.all %}
+      <div class="review">
+        <li>
+          <div class="review-user">User: <a style="color: #dbdbdb;">{{ review.client.user.username }}</a></div>
+          <div class="review-rating">Rating: <a class="rating-link">{{ review.rating }}</a>/5</div>
+          <div class="review-text">{{ review.text }}</div>
+        </li>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="product-price">The product has no reviews yet.</div>
+  {% endif %}
 </div>
 {% endblock %}
