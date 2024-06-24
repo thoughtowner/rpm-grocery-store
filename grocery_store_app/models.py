@@ -457,7 +457,7 @@ class Promotion(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
         Returns:
             str: Title of the product along with its price.
         """
-        return _('{0} ({1}): {2}, {3}: {4} - {5}').format(
+        return _('{0} ({1}: {2}, {3}: {4} - {5})').format(
             self.title,
             _('discount amount'),
             self.discount_amount,
