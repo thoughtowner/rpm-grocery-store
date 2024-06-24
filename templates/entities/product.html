@@ -160,6 +160,10 @@
   text-decoration: none;
   color: #dbdbdb;
 }
+
+.form-group {
+    margin-bottom: 10px;
+}
 </style>
 
 <div class="product-info-container">
@@ -227,5 +231,22 @@
   {% else %}
     <div class="product-price">The product has no reviews yet.</div>
   {% endif %}
+ <form method="GET" action="{% url 'add_review' %}" style="display: flex; flex-direction: column; font-size: 36px;">
+     {% csrf_token %}
+     <input type="hidden" name="id" value="{{ product.id }}">
+     <div class="form-group">
+         <label for="rating" style="color: #7e7e7e;">Rating:</label>
+         <input type="number" id="rating" name="rating" min="1" max="5" required>
+     </div>
+     <div class="form-group">
+      <label for="text" style="color: #7e7e7e;">Text:</label>
+      <textarea id="text" name="text" rows="4" required></textarea>
+     </div>
+    <div>
+      <button type="submit">Add Review</button>
+    </div>
+ </form>
+ 
+
 </div>
 {% endblock %}

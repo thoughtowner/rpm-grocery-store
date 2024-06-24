@@ -1,0 +1,52 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<style>
+ .product-info {
+    color: #7e7e7e;
+    font-size: 28px;
+    background-color: #222222;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+ .product-title {
+    color: #7e7e7e;
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+ .price-info {
+    color: #7e7e7e;
+    font-size: 24px;
+  }
+ .order-form {
+    background-color: #222222;
+    padding: 20px;
+    display: flex;
+  }
+ .order-form label,
+ .order-form button {
+    color: #7e7e7e;
+  }
+ .order-form input[type="number"] {
+    margin-left: 10px;
+  }
+ .insufficient-funds {
+    color: #7e7e7e;
+    text-decoration: none;
+  }
+</style>
+
+<div class="product-info">
+    <span class="product-title">Are you sure you want to leave this review?</span>
+    <h5 class="price-info">Rating: <span style="color: #dbdbdb;">{{ rating }}</span>/5</h5>
+    <h5 class="price-info">Text: <span style="color: #dbdbdb;">{{ text }}</span></h5>
+    
+    <form method="post" action="{% url 'add_review' %}?id={{ product.id }}">
+    {% csrf_token %}
+    <input type="hidden" name="id" value="{{ product.id }}">
+    <input type="hidden" name="rating" value="{{ rating }}">
+    <input type="hidden" name="text" value="{{ text }}">
+    <button type="submit">Confirm review</button>
+    </form>
+  </div>
+  {% endblock %}

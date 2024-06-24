@@ -2,6 +2,8 @@ from typing import Any
 
 from decimal import Decimal
 from django.utils import timezone
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 from django.contrib.auth import decorators, mixins
 from django.core import exceptions
@@ -170,21 +172,21 @@ def profile(request):
 def order(request):
     product_id = request.GET.get('id', None)
     if not product_id:
-        return redirect('profile')
+        return redirect('categories')
     try:
         product = Product.objects.get(id=product_id) if product_id else None
     except exceptions.ObjectDoesNotExist:
-        return redirect('profile')
+        return redirect('categories')
     if not product:
-        return redirect('profile')
+        return redirect('categories')
 
     client = Client.objects.get(user=request.user)
 
-    quantity = int(request.session.get('quantity', 0))
+    quantity = int(request.session.get('quantity', None))
 
     if request.method == 'GET':
         price_with_max_discount_amount = Decimal(request.GET.get('price_with_max_discount_amount', None).replace(',', '.'))
-        quantity = int(request.GET.get('quantity', 0))
+        quantity = int(request.GET.get('quantity', None))
         request.session['quantity'] = quantity
     
     if request.method == 'POST':
@@ -221,13 +223,13 @@ def order(request):
 def cancel_order(request):
     product_id = request.GET.get('id', None)
     if not product_id:
-        return redirect('profile')
+        return redirect('categories')
     try:
         product = Product.objects.get(id=product_id) if product_id else None
     except exceptions.ObjectDoesNotExist:
-        return redirect('profile')
+        return redirect('categories')
     if not product:
-        return redirect('profile')
+        return redirect('categories')
 
     client = Client.objects.get(user=request.user)
 
@@ -275,18 +277,40 @@ def cancel_order(request):
         }
     )
 
-# @decorators.login_required
-# def cancel_order(request):
-#     client = Client.objects.get(user=request.user)
-#     try:
-#         client_to_product = ClientToProduct.objects.get(client_id=client.id, product_id=product_id)
-#         if client.money >= client_to_product.total_cost():  # total_cost() - это поле, которое вы должны добавить в модель ClientToProduct для хранения общей стоимости заказа
-#             client.money += client_to_product.total_cost()
-#             client.save()
-#             client_to_product.delete()
-#         else:
-#             messages.error(request, "Недостаточно средств для отмены заказа.")
-#     except ClientToProduct.DoesNotExist:
-#         messages.error(request, "Заказ не найден.")
+@decorators.login_required
+def add_review(request):
+    if request.method == 'GET':
+        product_id = request.GET.get('id', None)
+    if request.method == 'POST':
+        product_id = request.POST.get('id', None)
+    if not product_id:
+        return redirect('categories')
+    try:
+        product = Product.objects.get(id=product_id) if product_id else None
+    except exceptions.ObjectDoesNotExist:
+        return redirect('categories')
+    if not product:
+        return redirect('categories')
 
-#     return redirect('profile')
+    client = Client.objects.get(user=request.user)
+
+    if request.method == 'GET':
+        text = request.GET.get('text', None)
+        rating = int(request.GET.get('rating', None))
+    
+    if request.method == 'POST':
+        text = request.POST.get('text', None)
+        rating = int(request.POST.get('rating', None))
+        review = Review.objects.create(text=text, rating=rating, product=product, client=client)
+        review.save()
+        return HttpResponseRedirect(f'/product/?id={product_id}')
+
+    return render(
+        request,
+        'pages/add_review.html',
+        {
+            'text': text,
+            'rating': rating,
+            'product': product,
+        }
+    )
