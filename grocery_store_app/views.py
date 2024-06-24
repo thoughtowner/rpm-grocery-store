@@ -340,6 +340,7 @@ def order(request):
                 None,
             ).replace(',', '.'),
         )
+        quantity = int(request.POST.get('quantity', None))
 
     sum_price_quantity = Decimal(quantity * price_with_max_discount_amount)
 
