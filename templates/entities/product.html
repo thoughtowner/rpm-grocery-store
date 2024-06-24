@@ -225,6 +225,15 @@
           <div class="review-user">User: <a style="color: #dbdbdb;">{{ review.client.user.username }}</a></div>
           <div class="review-rating">Rating: <a class="rating-link">{{ review.rating }}</a>/5</div>
           <div class="review-text">{{ review.text }}</div>
+          {% if review.client.user == request.user %}
+            <form method="GET" action="{% url 'delete_review' %}">
+              {% csrf_token %}
+              <input type="hidden" name="id" value="{{ product.id }}">
+              <input type="hidden" name="rating" value="{{ review.rating }}">
+              <input type="hidden" name="text" value="{{ review.text }}">
+              <button type="submit">Delete review</button>
+            </form>
+          {% endif %}
         </li>
       </div>
     {% endfor %}

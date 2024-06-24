@@ -314,3 +314,41 @@ def add_review(request):
             'product': product,
         }
     )
+
+@decorators.login_required
+def delete_review(request):
+    if request.method == 'GET':
+        product_id = request.GET.get('id', None)
+    if request.method == 'POST':
+        product_id = request.POST.get('id', None)
+    if not product_id:
+        return redirect('categories')
+    try:
+        product = Product.objects.get(id=product_id) if product_id else None
+    except exceptions.ObjectDoesNotExist:
+        return redirect('categories')
+    if not product:
+        return redirect('categories')
+
+    client = Client.objects.get(user=request.user)
+
+    if request.method == 'GET':
+        text = request.GET.get('text', None)
+        rating = request.GET.get('rating', None)
+    
+    if request.method == 'POST':
+        text = request.POST.get('text', None)
+        rating = int(request.POST.get('rating', None))
+        review = Review.objects.get(text=text, rating=rating, product=product, client=client)
+        review.delete()
+        return HttpResponseRedirect(f'/product/?id={product_id}')
+
+    return render(
+        request,
+        'pages/delete_review.html',
+        {
+            'text': text,
+            'rating': rating,
+            'product': product,
+        }
+    )

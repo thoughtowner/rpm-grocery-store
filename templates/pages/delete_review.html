@@ -37,16 +37,16 @@
 </style>
 
 <div class="product-info">
-    <span class="product-title">Are you sure you want to add this review?</span>
+    <span class="product-title">Are you sure you want to delete this review?</span>
     <h5 class="price-info">Rating: <span style="color: #dbdbdb;">{{ rating }}</span>/5</h5>
     <h5 class="price-info">Text: <span style="color: #dbdbdb;">{{ text }}</span></h5>
     
-    <form method="post" action="{% url 'add_review' %}?id={{ product.id }}">
+    <form method="post" action="{% url 'delete_review' %}?id={{ product.id }}">
     {% csrf_token %}
     <input type="hidden" name="id" value="{{ product.id }}">
     <input type="hidden" name="rating" value="{{ rating }}">
     <input type="hidden" name="text" value="{{ text }}">
-    <button type="submit">Add review</button>
+    <button type="submit">Delete review</button>
     </form>
   </div>
   {% endblock %}
