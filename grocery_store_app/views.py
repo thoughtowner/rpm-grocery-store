@@ -1,3 +1,5 @@
+"""Views module."""
+
 from decimal import Decimal
 from typing import Any
 
@@ -7,7 +9,6 @@ from django.core import paginator as django_paginator
 from django.db.models import Avg
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
-from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import ListView
 from rest_framework import authentication, permissions, viewsets
@@ -21,6 +22,15 @@ from .serializers import (CategorySerializer, ClientSerializer,
 
 
 def homepage(request):
+    """
+    Render the main page of the website.
+
+    Args:
+        request (django.http.HttpRequest): The Django HttpRequest object request.
+
+    Returns:
+        django.http.HttpResponse: An HTTP response containing HTML page.
+    """
     return render(
         request,
         'index.html',
@@ -28,7 +38,19 @@ def homepage(request):
 
 
 class MyPermission(permissions.BasePermission):
+    """Custom permission class that checks if the request method."""
+
     def has_permission(self, request, _):
+        """
+        Determine if the request should be granted permission based.
+
+        Args:
+            request (django.http.HttpRequest): The incoming HTTP request.
+            _: Unused argument, typically the view instance.
+
+        Returns:
+            bool: True if the request should be granted permission, False otherwise.
+        """
         if request.method in ('GET', 'OPTIONS', 'HEAD'):
             return bool(request.user and request.user.is_authenticated)
         elif request.method in ('POST', 'DELETE', 'PUT'):
@@ -37,6 +59,16 @@ class MyPermission(permissions.BasePermission):
 
 
 def create_viewset(model_class, serializer):
+    """
+    Dynamically creates a ModelViewSet for the specified model class and serializer.
+
+    Args:
+        model_class (django.db.models.Model): The Django model class.
+        serializer (rest_framework.serializers.Serializer): The serializer class.
+
+    Returns:
+        rest_framework.viewsets.ModelViewSet: A configured ModelViewSet instance ready for use.
+    """
     class ViewSet(viewsets.ModelViewSet):
         queryset = model_class.objects.all()
         serializer_class = serializer
@@ -53,6 +85,15 @@ ClientViewSet = create_viewset(Client, ClientSerializer)
 
 
 def register(request):
+    """
+    Handle the registration process for new users.
+
+    Args:
+        request (django.http.HttpRequest): The incoming HTTP request.
+
+    Returns:
+        django.shortcuts.render: Renders the registration template.
+    """
     errors = ''
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -72,13 +113,35 @@ def register(request):
 
 
 def create_listview(model_class, plural_name, template):
+    """
+    Dynamically creates a Django ListView with custom features.
+
+    Args:
+        model_class (type): The Django model class whose instances will be in the list view.
+        plural_name (str): The name to use for the context variable the list of instances.
+        template (str): The path to the template file to use for rendering the list view.
+
+    Returns:
+        type: A Django ListView instance configured with the specified model, template.
+    """
     class CustomListView(mixins.LoginRequiredMixin, ListView):
+        """A custom ListView that requires login, supports pagination context data."""
+
         model = model_class
         template_name = template
         paginate_by = 10
         context_object_name = plural_name
 
         def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+            """
+            Retrieve the context data and adds a paginated list of all instances of the model.
+
+            Args:
+                **kwargs: Arbitrary keyword arguments.
+
+            Returns:
+                dict[str, Any]: The context data dictionary.
+            """
             context = super().get_context_data(**kwargs)
             instances = model_class.objects.all()
             paginator = django_paginator.Paginator(instances, 10)
@@ -90,15 +153,29 @@ def create_listview(model_class, plural_name, template):
 
 
 CategoryListView = create_listview(
-    Category, 'categories', 'catalog/categories.html')
+    Category, 'categories', 'catalog/categories.html',
+)
 ProductListView = create_listview(Product, 'products', 'catalog/products.html')
 PromotionListView = create_listview(
-    Promotion, 'promotions', 'catalog/promotions.html')
+    Promotion, 'promotions', 'catalog/promotions.html',
+)
 ReviewListView = create_listview(Review, 'reviews', 'catalog/reviews.html')
 ClientListView = create_listview(Client, 'clients', 'catalog/clients.html')
 
 
 def create_view(model_class, context_name, template, redirect_page):
+    """
+    Dynamically creates a view function for displaying details of a specific instance of a model.
+
+    Args:
+        model_class (type): Model class for the view.
+        context_name (str): Context variable name for the model instance.
+        template (str): Template path for rendering the view.
+        redirect_page (str): URL pattern name for redirection on invalid conditions.
+
+    Returns:
+        callable: View function rendering the specified template with model instance details.
+    """
     @decorators.login_required
     def view(request):
         id_ = request.GET.get('id', None)
@@ -117,7 +194,8 @@ def create_view(model_class, context_name, template, redirect_page):
             average_rating = Review.objects.filter(
                 product=product).aggregate(
                 average_rating=Avg('rating'))
-            average_rating = average_rating['average_rating'] if average_rating['average_rating'] is not None else 0
+            avg_rating = average_rating['average_rating']
+            average_rating = avg_rating if avg_rating is not None else 0
             if isinstance(average_rating, int) or average_rating.is_integer():
                 average_rating_rounded = int(average_rating)
             else:
@@ -128,16 +206,19 @@ def create_view(model_class, context_name, template, redirect_page):
             product_promotions = ProductToPromotion.objects.filter(
                 product=product,
                 promotion__start_date__lte=current_date,
-                promotion__end_date__gte=current_date)
+                promotion__end_date__gte=current_date,
+            )
 
             if product_promotions.exists():
                 max_discount_amount = max(
-                    pp.promotion.discount_amount for pp in product_promotions)
+                    pp.promotion.discount_amount for pp in product_promotions
+                )
                 discount_factor = Decimal((100 - max_discount_amount) / 100)
                 price_with_max_discount = product.price * discount_factor
                 context['product_promotions'] = product_promotions
                 context['price_with_max_discount_amount'] = round(
-                    price_with_max_discount, 2)
+                    price_with_max_discount, 2,
+                )
                 context['max_discount_amount'] = max_discount_amount
 
         return render(
@@ -152,22 +233,36 @@ view_category = create_view(
     Category,
     'category',
     'entities/category.html',
-    'categories')
+    'categories',
+)
 view_product = create_view(
     Product,
     'product',
     'entities/product.html',
-    'products')
+    'products',
+)
 view_promotion = create_view(
     Promotion,
     'promotion',
     'entities/promotion.html',
-    'promotions')
+    'promotions',
+)
 view_review = create_view(Review, 'review', 'entities/review.html', 'reviews')
 
 
 @decorators.login_required
 def profile(request):
+    """
+    Handle deletion of a review by a logged-in user.
+
+    Args:
+        request: HttpRequest object containing the request data.
+
+    Returns:
+        HttpResponseRedirect: Redirects to the categories page if no product ID is found.
+        RenderResponse: Renders the delete_review template if the request is neither GET nor POST.
+        Otherwise, deletes the review and redirects to the product page.
+    """
     form_errors = ''
     client = Client.objects.get(user=request.user)
     if request.method == 'POST':
@@ -181,22 +276,42 @@ def profile(request):
 
     client_products = ClientToProduct.objects.filter(client=client)
 
-    products_with_quantities = [{'product': cp.product,
-                                 'quantity': cp.quantity,
-                                 'price': cp.price} for cp in client_products]
+    products_with_quantities = [
+        {
+            'product': cp.product,
+            'quantity': cp.quantity,
+            'price': cp.price,
+        } for cp in client_products
+    ]
 
-    return render(request,
-                  'pages/profile.html',
-                  {'form': form,
-                   'form_errors': form_errors,
-                   'client_data': {'username': client.user.username,
-                                   'money': client.money},
-                   'products_with_quantities': products_with_quantities,
-                   })
+    return render(
+        request,
+        'pages/profile.html',
+        {
+            'form': form,
+            'form_errors': form_errors,
+            'client_data': {
+                'username': client.user.username,
+                'money': client.money,
+            },
+            'products_with_quantities': products_with_quantities,
+        },
+    )
 
 
 @decorators.login_required
 def order(request):
+    """
+    Handle deletion of a review by a logged-in user.
+
+    Args:
+        request: HttpRequest object containing the request data.
+
+    Returns:
+        HttpResponseRedirect: Redirects to the categories page if no product ID is found.
+        RenderResponse: Renders the delete_review template if the request is neither GET nor POST.
+        Otherwise, deletes the review and redirects to the product page.
+    """
     product_id = request.GET.get('id', None)
     if not product_id:
         return redirect('categories')
@@ -213,18 +328,18 @@ def order(request):
         price_with_max_discount_amount = Decimal(
             request.GET.get(
                 'price_with_max_discount_amount',
-                None).replace(
-                ',',
-                '.'))
+                None,
+            ).replace(',', '.'),
+        )
         quantity = int(request.GET.get('quantity', None))
 
     if request.method == 'POST':
         price_with_max_discount_amount = Decimal(
             request.POST.get(
                 'price_with_max_discount_amount',
-                None).replace(
-                ',',
-                '.'))
+                None,
+            ).replace(',', '.'),
+        )
 
     sum_price_quantity = Decimal(quantity * price_with_max_discount_amount)
 
@@ -234,10 +349,13 @@ def order(request):
             client.save()
             try:
                 client_to_product = ClientToProduct.objects.get(
-                    client_id=client.id, product_id=product_id, price=price_with_max_discount_amount)
+                    client_id=client.id,
+                    product_id=product_id,
+                    price=price_with_max_discount_amount,
+                )
                 client_to_product.quantity += quantity
                 client_to_product.save()
-            except BaseException:
+            except Exception:
                 client_to_product = ClientToProduct.objects.create(
                     client_id=client.id,
                     product_id=product_id,
@@ -255,12 +373,23 @@ def order(request):
             'quantity': quantity,
             'sum_price_quantity': sum_price_quantity,
             'price_with_max_discount_amount': price_with_max_discount_amount,
-        }
+        },
     )
 
 
 @decorators.login_required
 def cancel_order(request):
+    """
+    Handle deletion of a review by a logged-in user.
+
+    Args:
+        request: HttpRequest object containing the request data.
+
+    Returns:
+        HttpResponseRedirect: Redirects to the categories page if no product ID is found.
+        RenderResponse: Renders the delete_review template if the request is neither GET nor POST.
+        Otherwise, deletes the review and redirects to the product page.
+    """
     product_id = request.GET.get('id', None)
     if not product_id:
         return redirect('categories')
@@ -279,9 +408,9 @@ def cancel_order(request):
         item_price = Decimal(
             request.GET.get(
                 'item_price',
-                None).replace(
-                ',',
-                '.'))
+                None,
+            ).replace(',', '.'),
+        )
         returned_quantity = int(request.GET.get('returned_quantity', 0))
         request.session['returned_quantity'] = returned_quantity
 
@@ -289,9 +418,9 @@ def cancel_order(request):
         item_price = Decimal(
             request.POST.get(
                 'item_price',
-                None).replace(
-                ',',
-                '.'))
+                None,
+            ).replace(',', '.'),
+        )
 
     client_to_product = ClientToProduct.objects.get(
         client_id=client.id, product_id=product_id, price=item_price)
@@ -326,12 +455,23 @@ def cancel_order(request):
             'returned_quantity': returned_quantity,
             'sum_price_returned_quantity': sum_price_returned_quantity,
             'item_price': item_price,
-        }
+        },
     )
 
 
 @decorators.login_required
 def add_review(request):
+    """
+    Handle deletion of a review by a logged-in user.
+
+    Args:
+        request: HttpRequest object containing the request data.
+
+    Returns:
+        HttpResponseRedirect: Redirects to the categories page if no product ID is found.
+        RenderResponse: Renders the delete_review template if the request is neither GET nor POST.
+        Otherwise, deletes the review and redirects to the product page.
+    """
     if request.method == 'GET':
         product_id = request.GET.get('id', None)
     if request.method == 'POST':
@@ -358,7 +498,8 @@ def add_review(request):
             text=text,
             rating=rating,
             product=product,
-            client=client)
+            client=client,
+        )
         review.save()
         return HttpResponseRedirect(f'/product/?id={product_id}')
 
@@ -369,12 +510,23 @@ def add_review(request):
             'text': text,
             'rating': rating,
             'product': product,
-        }
+        },
     )
 
 
 @decorators.login_required
 def delete_review(request):
+    """
+    Handle deletion of a review by a logged-in user.
+
+    Args:
+        request: HttpRequest object containing the request data.
+
+    Returns:
+        HttpResponseRedirect: Redirects to the categories page if no product ID is found.
+        RenderResponse: Renders the delete_review template if the request is neither GET nor POST.
+        Otherwise, deletes the review and redirects to the product page.
+    """
     if request.method == 'GET':
         product_id = request.GET.get('id', None)
     if request.method == 'POST':
@@ -401,7 +553,8 @@ def delete_review(request):
             text=text,
             rating=rating,
             product=product,
-            client=client)
+            client=client,
+        )
         review.delete()
         return HttpResponseRedirect(f'/product/?id={product_id}')
 
@@ -412,5 +565,5 @@ def delete_review(request):
             'text': text,
             'rating': rating,
             'product': product,
-        }
+        },
     )

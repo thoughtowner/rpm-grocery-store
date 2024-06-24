@@ -1,4 +1,5 @@
-from django.contrib.auth import views as auth_views
+"""Urls module."""
+
 from django.urls import include, path
 from rest_framework import routers
 

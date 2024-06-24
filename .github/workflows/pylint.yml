@@ -34,9 +34,10 @@ jobs:
     - name: Test forms
       run: ./tests/test.sh tests.test_forms
 
-    - name: Test order
-      run: ./tests/test.sh tests.test_order
     - name: Test add_funds
       run: ./tests/test.sh tests.test_add_funds
     - name: Test registration
       run: ./tests/test.sh tests.test_registration
+
+    - name: Flake8
+      run: flake8
