@@ -14,6 +14,7 @@ class TestRegistration(TestCase):
         'last_name': 'test',
         'email': 'test@mail.com',
     }
+
     def setUp(self):
         self.client = test_client.Client()
 

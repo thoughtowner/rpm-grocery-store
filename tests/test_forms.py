@@ -26,13 +26,16 @@ common_password = valid_data.copy()
 common_password['password1'] = 'abcdef123'
 common_password['password2'] = 'abcdef123'
 
+
 class TestRegistrationForm(TestCase):
     def test_valid(self):
         self.assertTrue(RegistrationForm(data=valid_data).is_valid())
 
     def test_not_matching_passwords(self):
-        self.assertFalse(RegistrationForm(data=not_matching_password).is_valid())
-        
+        self.assertFalse(
+            RegistrationForm(
+                data=not_matching_password).is_valid())
+
     def test_short_password(self):
         self.assertFalse(RegistrationForm(data=short_password).is_valid())
 

@@ -1,7 +1,8 @@
+from decimal import Decimal
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test import client as test_client
-from decimal import Decimal
 
 from grocery_store_app.models import Client
 
@@ -12,7 +13,8 @@ class TestAddFunds(TestCase):
     def setUp(self) -> None:
         self.test_client = test_client.Client()
         self.user = User.objects.create(username='user', password='user')
-        self.grocery_store_client = Client.objects.create(user=self.user, money=0)
+        self.grocery_store_client = Client.objects.create(
+            user=self.user, money=0)
         self.test_client.force_login(self.user)
 
     def test_negative_funds(self):

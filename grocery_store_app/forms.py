@@ -47,7 +47,13 @@ class RegistrationForm(forms.UserCreationForm):
 
     class Meta:
         model = models.User
-        fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2']
+        fields = [
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'password1',
+            'password2']
 
 
 class AddFundsForm(Form):
@@ -64,9 +70,11 @@ class AddFundsForm(Form):
             return False
         money = self.cleaned_data.get('money', None)
         if not money:
-            add_error(ValidationError('an error occured, money field was not specified!'))
+            add_error(ValidationError(
+                'an error occured, money field was not specified!'))
             return False
         if money < 0:
-            add_error(ValidationError('you can only add positive amount of money!'))
+            add_error(
+                ValidationError('you can only add positive amount of money!'))
             return False
         return True

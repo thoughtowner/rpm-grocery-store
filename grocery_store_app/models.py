@@ -20,60 +20,80 @@ DEFAULT_IMAGE = 'https://acropora.ru/images/yootheme/pages/features/panel03.jpg'
 def get_current_datetime():
     return datetime.now(tz=timezone.utc)
 
+
 def get_current_date():
     return date.today()
+
 
 def check_created_datetime(created_datetime: datetime) -> None:
     if created_datetime > get_current_datetime():
         raise ValidationError(
             _('The created datetime should be less than or equal to the current datetime!'),
-            params={'created_datetime': created_datetime}
-        )
+            params={
+                'created_datetime': created_datetime})
+
 
 def check_modified_datetime(modified_datetime: datetime) -> None:
     if modified_datetime > get_current_datetime():
         raise ValidationError(
             _('The modified datetime should be less than or equal to the current datetime!'),
-            params={'modified_datetime': modified_datetime}
-        )
-    
+            params={
+                'modified_datetime': modified_datetime})
+
+
 def check_start_date(start_date: date) -> None:
     if start_date < get_current_date():
         raise ValidationError(
             _('The start date should be greater than or equal to the current date!'),
-            params={'start_date': start_date},
+            params={
+                'start_date': start_date},
         )
+
 
 def check_end_date(end_date: date) -> None:
     if end_date < get_current_date():
         raise ValidationError(
             _('The end date should be greater than or equal to the current date!'),
-            params={'end_date': end_date},
+            params={
+                'end_date': end_date},
         )
-    
+
+
 def check_price(price: int | float) -> None:
     if price <= 0 or price >= 10000:
-        raise ValidationError(_('The price should be in the range between 0.01 and 9999.99 inclusive!'),
-            params={'price': price},
+        raise ValidationError(
+            _('The price should be in the range between 0.01 and 9999.99 inclusive!'),
+            params={
+                'price': price},
         )
-    
+
+
 def check_discount_amount(discount_amount: int) -> None:
     if discount_amount < 0 or discount_amount > 100:
-        raise ValidationError(_('The discount amount should be in the range between 0 and 100 inclusive!'),
-            params={'discount_amount': discount_amount},
+        raise ValidationError(
+            _('The discount amount should be in the range between 0 and 100 inclusive!'),
+            params={
+                'discount_amount': discount_amount},
         )
+
 
 def check_money(money: int | float) -> None:
     if money < 0 or money >= 10000000:
-        raise ValidationError(_('The money should be in the range between 0 and 9999999.99 inclusive!'),
-            params={'money': money},
+        raise ValidationError(
+            _('The money should be in the range between 0 and 9999999.99 inclusive!'),
+            params={
+                'money': money},
         )
-    
+
+
 def check_rating(rating: int) -> None:
     if rating < 0 or rating > 5:
-        raise ValidationError(_('The rating should be in the range between 0 and 5 inclusive!'),
-            params={'rating': rating},
+        raise ValidationError(
+            _('The rating should be in the range between 0 and 5 inclusive!'),
+            params={
+                'rating': rating},
         )
+
 
 def check_quantity(quantity: int) -> None:
     if quantity < 0:
@@ -84,7 +104,11 @@ def check_quantity(quantity: int) -> None:
 
 
 class UUIDMixin(models.Model):
-    id = models.UUIDField(primary_key=True, blank=True, editable=False, default=uuid4)
+    id = models.UUIDField(
+        primary_key=True,
+        blank=True,
+        editable=False,
+        default=uuid4)
 
     class Meta:
         abstract = True
@@ -94,7 +118,7 @@ class CreatedDatetimeMixin(models.Model):
     created_datetime = models.DateTimeField(
         _('created_datetime'),
         null=True, blank=True,
-        default=get_current_datetime, 
+        default=get_current_datetime,
         validators=[
             check_created_datetime,
         ]
@@ -108,7 +132,7 @@ class ModifiedDatetimeMixin(models.Model):
     modified_datetime = models.DateTimeField(
         _('modified_datetime'),
         null=True, blank=True,
-        default=get_current_datetime, 
+        default=get_current_datetime,
         validators=[
             check_modified_datetime,
         ]
@@ -119,8 +143,16 @@ class ModifiedDatetimeMixin(models.Model):
 
 
 class Category(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
-    title = models.TextField(_('title'), null=False, blank=False, max_length=CATEGORY_TITLE_MAX_LENGTH)
-    description = models.TextField(_('description'), null=True, blank=True, max_length=CATEGORY_DESCRIPTION_MAX_LENGTH)
+    title = models.TextField(
+        _('title'),
+        null=False,
+        blank=False,
+        max_length=CATEGORY_TITLE_MAX_LENGTH)
+    description = models.TextField(
+        _('description'),
+        null=True,
+        blank=True,
+        max_length=CATEGORY_DESCRIPTION_MAX_LENGTH)
     image = models.TextField(null=True, blank=True, default=DEFAULT_IMAGE)
 
     def __str__(self) -> str:
@@ -148,19 +180,42 @@ class ProductManager(models.Manager):
 
 
 class Product(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
-    title = models.TextField(_('title'), null=False, blank=False, max_length=PRODUCT_TITLE_MAX_LENGTH)
-    description = models.TextField(_('description'), null=True, blank=True, max_length=PRODUCT_DESCRIPTION_MAX_LENGTH)
-    price = models.DecimalField(_('price'), null=False, blank=False, max_digits=6, decimal_places=2, validators=[check_price,])
+    title = models.TextField(
+        _('title'),
+        null=False,
+        blank=False,
+        max_length=PRODUCT_TITLE_MAX_LENGTH)
+    description = models.TextField(
+        _('description'),
+        null=True,
+        blank=True,
+        max_length=PRODUCT_DESCRIPTION_MAX_LENGTH)
+    price = models.DecimalField(
+        _('price'),
+        null=False,
+        blank=False,
+        max_digits=6,
+        decimal_places=2,
+        validators=[
+            check_price,
+        ])
     image = models.TextField(null=True, blank=True, default=DEFAULT_IMAGE)
 
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name=_('category'), related_name='products')
-    promotions = models.ManyToManyField('Promotion', through='ProductToPromotion', verbose_name=_('promotions'))
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.CASCADE,
+        verbose_name=_('category'),
+        related_name='products')
+    promotions = models.ManyToManyField(
+        'Promotion',
+        through='ProductToPromotion',
+        verbose_name=_('promotions'))
 
     objects = ProductManager()
 
     def __str__(self) -> str:
         return f'{self.title} ({self.price} {_("RUB")})'
-    
+
     def save(self, *args, **kwargs):
         check_price(self.price)
         super().save(*args, **kwargs)
@@ -188,17 +243,39 @@ class PromotionManager(models.Manager):
 
 
 class Promotion(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
-    title = models.TextField(_('title'), null=False, blank=False, max_length=PROMOTION_TITLE_MAX_LENGTH)
-    description = models.TextField(_('description'), null=True, blank=True, max_length=PROMOTION_DESCRIPTION_MAX_LENGTH)
-    discount_amount = models.PositiveSmallIntegerField(_('discount amount'), null=False, blank=False, validators=[check_discount_amount,])
-    start_date = models.DateField(_('start date'), null=False, blank=False, validators=[check_start_date,], default=get_current_date)
-    end_date = models.DateField(_('end date'), null=False, blank=False, validators=[check_end_date,], default=get_current_date)
+    title = models.TextField(
+        _('title'),
+        null=False,
+        blank=False,
+        max_length=PROMOTION_TITLE_MAX_LENGTH)
+    description = models.TextField(
+        _('description'),
+        null=True,
+        blank=True,
+        max_length=PROMOTION_DESCRIPTION_MAX_LENGTH)
+    discount_amount = models.PositiveSmallIntegerField(
+        _('discount amount'), null=False, blank=False, validators=[
+            check_discount_amount, ])
+    start_date = models.DateField(
+        _('start date'), null=False, blank=False, validators=[
+            check_start_date, ], default=get_current_date)
+    end_date = models.DateField(
+        _('end date'),
+        null=False,
+        blank=False,
+        validators=[
+            check_end_date,
+        ],
+        default=get_current_date)
     image = models.TextField(null=True, blank=True, default=DEFAULT_IMAGE)
 
-    products = models.ManyToManyField(Product, through='ProductToPromotion', verbose_name=_('products'))
+    products = models.ManyToManyField(
+        Product,
+        through='ProductToPromotion',
+        verbose_name=_('products'))
 
     objects = PromotionManager()
-    
+
     def __str__(self) -> str:
         return f'{self.title} ({_("discount amount")}: {self.discount_amount}, {_("discount time")}: {self.start_date} - {self.end_date})'
 
@@ -206,17 +283,16 @@ class Promotion(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
         super().clean()
         if self.end_date:
             if self.start_date > self.end_date:
-                raise ValidationError({
-                    'end_date': _(f'The {self.end_date} should be greater than or equal to the {self.start_date}!'),
-                })
-            
+                raise ValidationError({'end_date': _(
+                    f'The {self.end_date} should be greater than or equal to the {self.start_date}!'), })
+
     def save(self, *args, **kwargs):
         check_discount_amount(self.discount_amount)
         check_start_date(self.start_date)
         if self.end_date:
             check_end_date(self.end_date)
         super().save(*args, **kwargs)
-            
+
     class Meta:
         db_table = '"grocery_store"."promotions"'
         ordering = ['discount_amount']
@@ -225,8 +301,14 @@ class Promotion(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
 
 
 class ProductToPromotion(UUIDMixin, CreatedDatetimeMixin):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name=_('product'))
-    promotion = models.ForeignKey(Promotion, on_delete=models.CASCADE, verbose_name=_('promotion'))
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        verbose_name=_('product'))
+    promotion = models.ForeignKey(
+        Promotion,
+        on_delete=models.CASCADE,
+        verbose_name=_('promotion'))
 
     def __str__(self) -> str:
         return f'{self.product} - {self.promotion}'
@@ -252,21 +334,34 @@ class ReviewManager(models.Manager):
 
 
 class Review(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
-    text = models.TextField(_('text'), null=False, blank=False, max_length=REVIEW_TEXT_MAX_LENGTH)
-    rating = models.PositiveSmallIntegerField(_('rating'), null=False, blank=False, validators=[check_rating,], default=5)
+    text = models.TextField(
+        _('text'),
+        null=False,
+        blank=False,
+        max_length=REVIEW_TEXT_MAX_LENGTH)
+    rating = models.PositiveSmallIntegerField(
+        _('rating'), null=False, blank=False, validators=[
+            check_rating, ], default=5)
 
-    client = models.ForeignKey('Client', on_delete=models.CASCADE, verbose_name=_('client'))
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name=_('product'), related_name='reviews')
+    client = models.ForeignKey(
+        'Client',
+        on_delete=models.CASCADE,
+        verbose_name=_('client'))
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        verbose_name=_('product'),
+        related_name='reviews')
 
     objects = ReviewManager()
 
     def __str__(self) -> str:
         return f'{self.text} ({_("rating")}: {self.rating}/5)'
-    
+
     def save(self, *args, **kwargs):
         check_rating(self.rating)
         super().save(*args, **kwargs)
-    
+
     class Meta:
         db_table = '"grocery_store"."reviews"'
         ordering = ['rating']
@@ -282,20 +377,35 @@ class ClientManager(models.Manager):
 
 
 class Client(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
-    money = models.DecimalField(_('money'), null=False, blank=False, max_digits=9, decimal_places=2, validators=[check_money,], default=0)
+    money = models.DecimalField(
+        _('money'),
+        null=False,
+        blank=False,
+        max_digits=9,
+        decimal_places=2,
+        validators=[
+            check_money,
+        ],
+        default=0)
 
-    user = models.OneToOneField(AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_('user'))
-    products = models.ManyToManyField(Product, through='ClientToProduct', verbose_name=_('products'))
+    user = models.OneToOneField(
+        AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name=_('user'))
+    products = models.ManyToManyField(
+        Product,
+        through='ClientToProduct',
+        verbose_name=_('products'))
 
     objects = ClientManager()
 
     def __str__(self) -> str:
         return f'{self.user.username} ({self.user.first_name} {self.user.last_name})'
-    
+
     def save(self, *args, **kwargs):
         check_money(self.money)
         super().save(*args, **kwargs)
-    
+
     class Meta:
         db_table = '"grocery_store"."clients"'
         ordering = ['user']
@@ -304,18 +414,34 @@ class Client(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
 
 
 class ClientToProduct(UUIDMixin, CreatedDatetimeMixin):
-    quantity = models.PositiveSmallIntegerField(_('quantity'), null=False, blank=False, validators=[check_quantity,], default=1)
-    price = models.DecimalField(_('price'), null=False, blank=False, max_digits=6, decimal_places=2, validators=[check_price,])
-    client = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name=_('client'))
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name=_('product'))
+    quantity = models.PositiveSmallIntegerField(
+        _('quantity'), null=False, blank=False, validators=[
+            check_quantity, ], default=1)
+    price = models.DecimalField(
+        _('price'),
+        null=False,
+        blank=False,
+        max_digits=6,
+        decimal_places=2,
+        validators=[
+            check_price,
+        ])
+    client = models.ForeignKey(
+        Client,
+        on_delete=models.CASCADE,
+        verbose_name=_('client'))
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        verbose_name=_('product'))
 
     def __str__(self) -> str:
         return f'{self.client} - {self.product}'
-    
+
     def save(self, *args, **kwargs):
         check_quantity(self.quantity)
         super().save(*args, **kwargs)
-    
+
     class Meta:
         db_table = '"grocery_store"."client_to_product"'
         unique_together = (

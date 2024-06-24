@@ -10,8 +10,10 @@ def prepare_db(self):
     self.connect()
     self.connection.cursor().execute('create schema if not exists grocery_store;')
 
+
 class PostgresSchemaRunner(DiscoverRunner):
-    def setup_databases(self, **kwargs: Any) -> list[tuple[BaseDatabaseWrapper, str, bool]]:
+    def setup_databases(
+            self, **kwargs: Any) -> list[tuple[BaseDatabaseWrapper, str, bool]]:
         for conn_name in connections:
             connection = connections[conn_name]
             connection.prepare_database = MethodType(prepare_db, connection)

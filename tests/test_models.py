@@ -12,7 +12,6 @@ from grocery_store_app.models import (Category, Client, Product, Promotion,
                                       check_price, check_quantity,
                                       check_rating, check_start_date)
 
-
 current_datetime = datetime.now(tz=timezone.utc)
 yesterday_datetime = current_datetime - timedelta(days=1)
 tomorrow_datetime = current_datetime + timedelta(days=1)
@@ -20,14 +19,19 @@ tomorrow_datetime = current_datetime + timedelta(days=1)
 
 class ClientTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create(username='ABC', first_name='ABC', last_name='ABC', password='ABC')
+        self.user = User.objects.create(
+            username='ABC',
+            first_name='ABC',
+            last_name='ABC',
+            password='ABC')
 
     def test_invalid(self):
         with self.assertRaises(ValidationError):
             Client.objects.create(user=self.user, money=-1)
 
     def test_create_and_str(self):
-        self.assertEqual(str(Client.objects.create(user=self.user)), 'ABC (ABC ABC)')
+        self.assertEqual(str(Client.objects.create(
+            user=self.user)), 'ABC (ABC ABC)')
 
 
 class CategoryStrTest(TestCase):
@@ -45,13 +49,15 @@ class ProductStrTest(TestCase):
 
     def setUp(self) -> None:
         """Set up things for tests."""
-        self.category = Category.objects.create(title = 'A', description = 'ABC')
+        self.category = Category.objects.create(title='A', description='ABC')
 
     def test_str(self):
-        self.try_save({'title': 'ABC', 'price': 123.45, 'category': self.category})
+        self.try_save({'title': 'ABC', 'price': 123.45,
+                      'category': self.category})
 
     def try_save(self, attrs):
-        self.assertEqual(str(Product.objects.create(**attrs)), 'ABC (123.45 RUB)')
+        self.assertEqual(str(Product.objects.create(**attrs)),
+                         'ABC (123.45 RUB)')
 
 
 class PromotionStrTest(TestCase):
@@ -61,7 +67,8 @@ class PromotionStrTest(TestCase):
         self.try_save({'title': 'ABC', 'discount_amount': 10})
 
     def try_save(self, attrs):
-        self.assertEqual(str(Promotion.objects.create(**attrs)), f'ABC (discount amount: 10, discount time: {current_datetime.date()} - {current_datetime.date()})')
+        self.assertEqual(str(Promotion.objects.create(
+            **attrs)), f'ABC (discount amount: 10, discount time: {current_datetime.date()} - {current_datetime.date()})')
 
 
 class ReviewStrTest(TestCase):
@@ -69,20 +76,25 @@ class ReviewStrTest(TestCase):
 
     def setUp(self) -> None:
         """Set up things for tests."""
-        self.category = Category.objects.create(title = 'A', description = 'ABC')
-        self.product = Product.objects.create(title = 'A', price = 100.00, category = self.category)
+        self.category = Category.objects.create(title='A', description='ABC')
+        self.product = Product.objects.create(
+            title='A', price=100.00, category=self.category)
         self.user = User.objects.create_user(username='user', password='user')
         self.client = Client.objects.create(user=self.user, money=0)
 
     def test_str(self):
-        self.try_save({'text': 'ABC', 'product': self.product, 'client': self.client})
+        self.try_save({'text': 'ABC',
+                       'product': self.product,
+                       'client': self.client})
 
     def try_save(self, attrs):
-        self.assertEqual(str(Review.objects.create(**attrs)), 'ABC (rating: 5/5)')
+        self.assertEqual(str(Review.objects.create(**attrs)),
+                         'ABC (rating: 5/5)')
 
 
 def get_valid_category_attrs() -> dict:
     return {'title': 'A', 'description': 'ABC'}
+
 
 def get_invalid_category_attrs() -> tuple[dict]:
     return (
@@ -90,8 +102,10 @@ def get_invalid_category_attrs() -> tuple[dict]:
         {'title': 'ABC', 'modified_datetime': tomorrow_datetime},
     )
 
+
 def get_valid_product_attrs(category) -> dict:
     return {'title': 'A', 'price': 100.00, 'category': category}
+
 
 def get_invalid_product_attrs(category) -> tuple[dict]:
     return (
@@ -102,8 +116,10 @@ def get_invalid_product_attrs(category) -> tuple[dict]:
         {'title': 'ABC', 'price': 100.00, 'category': category, 'modified_datetime': tomorrow_datetime},
     )
 
+
 def get_valid_promotion_attrs() -> dict:
     return {'title': 'ABC', 'discount_amount': 10}
+
 
 def get_invalid_promotion_attrs() -> tuple[dict]:
     return (
@@ -115,14 +131,21 @@ def get_invalid_promotion_attrs() -> tuple[dict]:
         {'title': 'ABC', 'discount_amount': 10, 'modified_datetime': tomorrow_datetime},
     )
 
+
 def get_valid_review_attrs(product, client) -> dict:
     return {'text': 'ABC', 'product': product, 'client': client}
 
+
 def get_invalid_review_attrs(product, client) -> tuple[dict]:
-    return (
-        {'text': 'ABC', 'product': product, 'client': client, 'created_datetime': tomorrow_datetime},
-        {'text': 'ABC', 'product': product, 'client': client, 'modified_datetime': tomorrow_datetime},
-    )
+    return ({'text': 'ABC',
+             'product': product,
+             'client': client,
+             'created_datetime': tomorrow_datetime},
+            {'text': 'ABC',
+             'product': product,
+             'client': client,
+             'modified_datetime': tomorrow_datetime},
+            )
 
 
 class CategoryModelTest(TestCase):
@@ -148,7 +171,7 @@ class ProductModelTest(TestCase):
 
     def setUp(self) -> None:
         """Set up things for tests."""
-        self.category = Category.objects.create(title = 'A', description = 'ABC')
+        self.category = Category.objects.create(title='A', description='ABC')
 
     def test_unsuccessful_creation(self):
         """Test creating attrs with invalid attrs."""
@@ -188,14 +211,16 @@ class ReviewModelTest(TestCase):
 
     def setUp(self) -> None:
         """Set up things for tests."""
-        self.category = Category.objects.create(title = 'A', description = 'ABC')
-        self.product = Product.objects.create(title = 'A', price = 100.00, category = self.category)
+        self.category = Category.objects.create(title='A', description='ABC')
+        self.product = Product.objects.create(
+            title='A', price=100.00, category=self.category)
         self.user = User.objects.create_user(username='user', password='user')
         self.client = Client.objects.create(user=self.user, money=0)
 
     def test_unsuccessful_creation(self):
         """Test creating attrs with invalid attrs."""
-        for invalid_attrs in get_invalid_review_attrs(self.product, self.client):
+        for invalid_attrs in get_invalid_review_attrs(
+                self.product, self.client):
             with self.assertRaises(ValidationError):
                 self.try_save(invalid_attrs)
 
@@ -208,8 +233,10 @@ class ReviewModelTest(TestCase):
         instance.save()
 
 
-PAST = datetime(datetime.today().year-1, 1, 1, 1, 1, 1, 1, tzinfo=timezone.utc)
-FUTURE = datetime(datetime.today().year+1, 1, 1, 1, 1, 1, 1, tzinfo=timezone.utc)
+PAST = datetime(datetime.today().year - 1, 1, 1,
+                1, 1, 1, 1, tzinfo=timezone.utc)
+FUTURE = datetime(datetime.today().year + 1, 1, 1,
+                  1, 1, 1, 1, tzinfo=timezone.utc)
 
 validators_pass = (
     (check_created_datetime, PAST),
@@ -235,13 +262,20 @@ validators_fail = (
     (check_quantity, -10),
 )
 
+
 def create_val_test(validator, value, valid=True):
     def test(self):
         with self.assertRaises(ValidationError):
             validator(value)
-    return lambda _ : validator(value) if valid else test
+    return lambda _: validator(value) if valid else test
 
-invalid_methods = {f'test_inval_{args[0].__name__}': create_val_test(*args, valid=False) for args in validators_fail}
-valid_methods = {f'test_val_{args[0].__name__}': create_val_test(*args) for args in validators_pass}
 
-ValidatorsTest = type('ValidatorsTest', (TestCase,), invalid_methods | valid_methods)
+invalid_methods = {
+    f'test_inval_{args[0].__name__}': create_val_test(
+        *args, valid=False) for args in validators_fail}
+valid_methods = {
+    f'test_val_{args[0].__name__}': create_val_test(
+        *args) for args in validators_pass}
+
+ValidatorsTest = type('ValidatorsTest', (TestCase,),
+                      invalid_methods | valid_methods)

@@ -15,9 +15,12 @@ def create_viewset_test(model_class, url, creation_attrs):
     class ViewSetTest(TestCase):
         def setUp(self):
             self.client = APIClient()
-            self.category = Category.objects.create(title = 'A', description = 'ABC')
-            self.product = Product.objects.create(title = 'A', price = 100.00, category=self.category)
-            self.user = User.objects.create_user(username='user', password='user')
+            self.category = Category.objects.create(
+                title='A', description='ABC')
+            self.product = Product.objects.create(
+                title='A', price=100.00, category=self.category)
+            self.user = User.objects.create_user(
+                username='user', password='user')
             self.client_obj = Client.objects.create(user=self.user)
             self.superuser = User.objects.create_user(
                 username='superuser', password='superuser', is_superuser=True,
@@ -36,7 +39,13 @@ def create_viewset_test(model_class, url, creation_attrs):
         def test_get_by_superuser(self):
             self.get(self.superuser, self.superuser_token)
 
-        def manage(self, user: User, token: Token, post_status: int, put_status: int, delete_status: int):
+        def manage(
+                self,
+                user: User,
+                token: Token,
+                post_status: int,
+                put_status: int,
+                delete_status: int):
             self.client.force_authenticate(user=user, token=token)
 
             if model_class == Product:
@@ -51,7 +60,8 @@ def create_viewset_test(model_class, url, creation_attrs):
             created_id = model_class.objects.create(**creation_attrs).id
 
             if model_class == Product:
-                creation_attrs['category'] = f'http://127.0.0.1:8000/rest/categories/{self.category.id}/'
+                creation_attrs[
+                    'category'] = f'http://127.0.0.1:8000/rest/categories/{self.category.id}/'
 
             if model_class == Review:
                 creation_attrs['product'] = f'http://127.0.0.1:8000/rest/products/{self.product.id}/'
