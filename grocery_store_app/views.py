@@ -182,12 +182,9 @@ def order(request):
 
     client = Client.objects.get(user=request.user)
 
-    quantity = int(request.session.get('quantity', None))
-
     if request.method == 'GET':
         price_with_max_discount_amount = Decimal(request.GET.get('price_with_max_discount_amount', None).replace(',', '.'))
         quantity = int(request.GET.get('quantity', None))
-        request.session['quantity'] = quantity
     
     if request.method == 'POST':
         price_with_max_discount_amount = Decimal(request.POST.get('price_with_max_discount_amount', None).replace(',', '.'))

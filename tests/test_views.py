@@ -65,7 +65,6 @@ instance_pages = (
     ('/category/', 'category', 'entities/category.html', Category, {'title': 'A'}),
     ('/product/', 'product', 'entities/product.html', Product, {'title': 'A', 'price': 100.00}),
     ('/promotion/', 'promotion', 'entities/promotion.html', Promotion, {'title': 'A', 'discount_amount': 10}),
-    ('/order/', 'order', 'pages/order.html', Product, {'title': 'A', 'price': 100.00}),
 )
 
 pages = (
