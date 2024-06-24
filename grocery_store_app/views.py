@@ -152,7 +152,7 @@ def profile(request):
     client_products = ClientToProduct.objects.filter(client=client)
 
     products_with_quantities = [
-        {'product': cp.product, 'quantity': cp.quantity} for cp in client_products
+        {'product': cp.product, 'quantity': cp.quantity, 'price': cp.price} for cp in client_products
     ]
 
     return render(
@@ -170,34 +170,38 @@ def profile(request):
 def order(request):
     product_id = request.GET.get('id', None)
     if not product_id:
-        return redirect('products')
+        return redirect('profile')
     try:
         product = Product.objects.get(id=product_id) if product_id else None
     except exceptions.ObjectDoesNotExist:
-        return redirect('products')
+        return redirect('profile')
     if not product:
-        return redirect('products')
+        return redirect('profile')
 
     client = Client.objects.get(user=request.user)
 
     quantity = int(request.session.get('quantity', 0))
 
-    if request.method == 'GET' and 'quantity' in request.GET:
+    if request.method == 'GET':
+        price_with_max_discount_amount = Decimal(request.GET.get('price_with_max_discount_amount', None).replace(',', '.'))
         quantity = int(request.GET.get('quantity', 0))
         request.session['quantity'] = quantity
     
-    sum_price_quantity = quantity * product.price
+    if request.method == 'POST':
+        price_with_max_discount_amount = Decimal(request.POST.get('price_with_max_discount_amount', None).replace(',', '.'))
+
+    sum_price_quantity = Decimal(quantity * price_with_max_discount_amount)
 
     if request.method == 'POST':
-        if client.money >= quantity * product.price:            
-            client.money -= quantity * product.price
+        if client.money >= sum_price_quantity:            
+            client.money -= sum_price_quantity
             client.save()
             try:
-                client_to_product = ClientToProduct.objects.get(client_id=client.id, product_id=product_id)
+                client_to_product = ClientToProduct.objects.get(client_id=client.id, product_id=product_id, price=price_with_max_discount_amount)
                 client_to_product.quantity += quantity
                 client_to_product.save()
             except:
-                client_to_product = ClientToProduct.objects.create(client_id=client.id, product_id=product_id, quantity=quantity)
+                client_to_product = ClientToProduct.objects.create(client_id=client.id, product_id=product_id, quantity=quantity, price=price_with_max_discount_amount)
                 client_to_product.save()
         return redirect('profile')
 
@@ -209,5 +213,80 @@ def order(request):
             'product': product,
             'quantity': quantity,
             'sum_price_quantity': sum_price_quantity,
+            'price_with_max_discount_amount': price_with_max_discount_amount,
         }
     )
+
+@decorators.login_required
+def cancel_order(request):
+    product_id = request.GET.get('id', None)
+    if not product_id:
+        return redirect('profile')
+    try:
+        product = Product.objects.get(id=product_id) if product_id else None
+    except exceptions.ObjectDoesNotExist:
+        return redirect('profile')
+    if not product:
+        return redirect('profile')
+
+    client = Client.objects.get(user=request.user)
+
+    returned_quantity = int(request.session.get('returned_quantity', 0))
+
+    if request.method == 'GET':
+        item_price = Decimal(request.GET.get('item_price', None).replace(',', '.'))
+        returned_quantity = int(request.GET.get('returned_quantity', 0))
+        request.session['returned_quantity'] = returned_quantity
+
+    if request.method == 'POST':
+        item_price = Decimal(request.POST.get('item_price', None).replace(',', '.'))
+
+    client_to_product = ClientToProduct.objects.get(client_id=client.id, product_id=product_id, price=item_price)
+    if returned_quantity > client_to_product.quantity:
+        returned_quantity = client_to_product.quantity
+
+    sum_price_returned_quantity = Decimal(returned_quantity * item_price)
+
+    if request.method == 'POST':
+        client_to_product = ClientToProduct.objects.get(client_id=client.id, product_id=product_id, price=item_price)
+        if returned_quantity < client_to_product.quantity:
+            sum_price_returned_quantity = returned_quantity * client_to_product.price
+            client.money += sum_price_returned_quantity
+            client_to_product.quantity -= returned_quantity
+            client_to_product.save()
+            client.save()
+        else:
+            returned_quantity = client_to_product.quantity
+            sum_price_returned_quantity = returned_quantity * client_to_product.price
+            client.money += sum_price_returned_quantity
+            client_to_product.delete()
+            client.save()
+        return redirect('profile')
+
+    return render(
+        request,
+        'pages/cancel_order.html',
+        {
+            'money': client.money,
+            'product': product,
+            'returned_quantity': returned_quantity,
+            'sum_price_returned_quantity': sum_price_returned_quantity,
+            'item_price': item_price,
+        }
+    )
+
+# @decorators.login_required
+# def cancel_order(request):
+#     client = Client.objects.get(user=request.user)
+#     try:
+#         client_to_product = ClientToProduct.objects.get(client_id=client.id, product_id=product_id)
+#         if client.money >= client_to_product.total_cost():  # total_cost() - это поле, которое вы должны добавить в модель ClientToProduct для хранения общей стоимости заказа
+#             client.money += client_to_product.total_cost()
+#             client.save()
+#             client_to_product.delete()
+#         else:
+#             messages.error(request, "Недостаточно средств для отмены заказа.")
+#     except ClientToProduct.DoesNotExist:
+#         messages.error(request, "Заказ не найден.")
+
+#     return redirect('profile')

@@ -59,21 +59,10 @@ def create_viewset_test(model_class, url, creation_attrs):
             if model_class == Review:
                 creation_attrs['client'] = f'http://127.0.0.1:8000/rest/clients/{self.client_obj.id}/'
 
-
-            # POST
             response = self.client.post(url, creation_attrs)
             self.assertEqual(response.status_code, post_status)
-
-            # # creating existing book for further tests
-            # obj_creation_attrs = creation_attrs
-            # obj_creation_attrs['category'] = self.category
-            # created_id = model_class.objects.create(**obj_creation_attrs).id
-
-            # PUT
             response = self.client.put(f'{url}{created_id}/', creation_attrs)
             self.assertEqual(response.status_code, put_status)
-
-            # DELETE
             response = self.client.delete(f'{url}{created_id}/')
             self.assertEqual(response.status_code, delete_status)
 

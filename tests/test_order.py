@@ -25,29 +25,3 @@ class TestPurchase(TestCase):
     def test_insufficient_funds(self):
         self.test_client.post(self.page_url, {})
         self.assertEqual(self.grocery_store_client.money, 0)
-        # self.assertNotIn(self.product, self.grocery_store_client.products.all())  # Эта строка должна быть закомментирована или удалена, так как она неверна для данной ситуации
-
-
-    # def test_purchase(self):
-    #     self.grocery_store_client.money = 1
-    #     self.grocery_store_client.save()
-
-    #     self.test_client.post(self.page_url, {})
-    #     self.grocery_store_client.refresh_from_db()
-
-    #     # Проверьте, что деньги были списаны и продукт добавлен
-    #     self.assertEqual(self.grocery_store_client.money, Decimal('0.00'))
-    #     self.assertIn(self.product, self.grocery_store_client.products.all())
-
-
-    # def test_repeated_purchase(self):
-    #     self.grocery_store_client.money = 2
-    #     self.grocery_store_client.save()
-    #     self.test_client.post(self.page_url, {})
-    #     self.test_client.post(self.page_url, {})
-
-    #     self.grocery_store_client.refresh_from_db()
-    #     self.assertEqual(self.grocery_store_client.money, Decimal('0.00'))  # Обновлено значение
-    #     client_products = self.grocery_store_client.products.filter(id=self.product.id)
-    #     self.assertEqual(len(client_products), 2)  # Продукт должен появляться дважды, если он был куплен дважды
-

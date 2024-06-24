@@ -48,19 +48,12 @@ def create_method_instance(url, page_name, template, model, creation_attrs):
             creation_attrs['product'] = self.product
             creation_attrs['client'] = self.client_
 
-        # GET without auth
         self.assertEqual(self.client.get(url).status_code, status.HTTP_302_FOUND)
-        # login for client, test with auth below
         self.client.force_login(user=user)
-        # GET without id
         self.assertEqual(self.client.get(url).status_code, status.HTTP_302_FOUND)
-        # GET with invalid id
-        # self.assertEqual(self.client.get(f'{url}?id=123').status_code, status.HTTP_302_FOUND)
-        # creating model object for using in url
         created_id = model.objects.create(**creation_attrs).id
         created_url = f'{url}?id={created_id}'
         created_reversed_url = f'{reverse(page_name)}?id={created_id}'
-        # GET with valid id
         response = self.client.get(created_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTemplateUsed(response, template)
@@ -73,7 +66,6 @@ instance_pages = (
     ('/product/', 'product', 'entities/product.html', Product, {'title': 'A', 'price': 100.00}),
     ('/promotion/', 'promotion', 'entities/promotion.html', Promotion, {'title': 'A', 'discount_amount': 10}),
     ('/order/', 'order', 'pages/order.html', Product, {'title': 'A', 'price': 100.00}),
-    # ('/cancel_order/', 'cancel_order', 'pages/cancel_order.html', Product, {'title': 'A', 'price': 100.00})
 )
 
 pages = (

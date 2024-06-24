@@ -305,6 +305,7 @@ class Client(UUIDMixin, CreatedDatetimeMixin, ModifiedDatetimeMixin):
 
 class ClientToProduct(UUIDMixin, CreatedDatetimeMixin):
     quantity = models.PositiveSmallIntegerField(_('quantity'), null=False, blank=False, validators=[check_quantity,], default=1)
+    price = models.DecimalField(_('price'), null=False, blank=False, max_digits=6, decimal_places=2, validators=[check_price,])
     client = models.ForeignKey(Client, on_delete=models.CASCADE, verbose_name=_('client'))
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name=_('product'))
 
@@ -318,7 +319,7 @@ class ClientToProduct(UUIDMixin, CreatedDatetimeMixin):
     class Meta:
         db_table = '"grocery_store"."client_to_product"'
         unique_together = (
-            ('client', 'product'),
+            ('client', 'product', 'price'),
         )
         verbose_name = _('Relationship client to product')
         verbose_name_plural = _('Relationships client to product')

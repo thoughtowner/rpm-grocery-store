@@ -27,4 +27,5 @@ urlpatterns = [
     path('clients/', views.ClientListView.as_view(), name='clients'),
     path('accounts/profile/', views.profile, name='profile'),
     path('order/', views.order, name='order'),
+    path('cancel_order/', views.cancel_order, name='cancel_order'),
 ]

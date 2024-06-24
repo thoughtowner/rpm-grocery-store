@@ -10,7 +10,7 @@
     margin-bottom: 20px;
   }
  .product-title {
-    color: #dbdbdb;
+    color: #7e7e7e;
     font-size: 32px;
     margin-bottom: 10px;
   }
@@ -31,24 +31,25 @@
     margin-left: 10px;
   }
  .insufficient-funds {
-    color: #dbdbdb;
+    color: #7e7e7e;
     text-decoration: none;
   }
 </style>
 
 <div class="product-info">
-    <h4 class="product-title">You are going to order: {{ product.title }}</h4>
-    <h5 class="price-info">The cost: {{ sum_price_quantity }}</h5>
-    <h5 class="price-info">Funds available: {{ money }}</h5>
+    <span class="product-title">You are going to order: <span style="color: #dbdbdb;">{{ quantity }}</span> pieces of <span style="color: #dbdbdb;">{{ product.title }}</span></span>
+    <h5 class="price-info">The cost: <span style="color: #dbdbdb;">{{ sum_price_quantity }}</span> RUB</h5>
+    <h5 class="price-info">Funds available: <span style="color: #dbdbdb;">{{ money }}</span> RUB</h5>
     
     {% if product and quantity > 0 and sum_price_quantity <= money %}
       <form method="post" action="{% url 'order' %}?id={{ product.id }}">
         {% csrf_token %}
+        <input type="hidden" name="price_with_max_discount_amount" value="{{ price_with_max_discount_amount }}">
         <input type="hidden" name="quantity" value="{{ quantity }}">
-        <button type="submit">Confirm Order</button>
+        <button type="submit">Confirm order</button>
       </form>
     {% else %}
-      <h5 class="insufficient-funds">Insufficient funds. You can add funds in <a href="{% url 'profile' %}" class="password-reset">profile page</a>.</h5>
+      <h5 class="insufficient-funds">Insufficient funds. You can add funds in <a href="{% url 'profile' %}" style="color: #dbdbdb; list-style-type: none; text-decoration: none;">profile page</a>.</h5>
     {% endif %}
   </div>
   {% endblock %}

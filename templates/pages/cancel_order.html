@@ -1,0 +1,49 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<style>
+ .product-info {
+    color: #7e7e7e;
+    font-size: 28px;
+    background-color: #222222;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+ .product-title {
+    color: #7e7e7e;
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+ .price-info {
+    color: #7e7e7e;
+    font-size: 24px;
+  }
+ .order-form {
+    background-color: #222222;
+    padding: 20px;
+    display: flex;
+  }
+ .order-form label,
+ .order-form button {
+    color: #7e7e7e;
+  }
+ .order-form input[type="number"] {
+    margin-left: 10px;
+  }
+ .insufficient-funds {
+    color: #dbdbdb;
+    text-decoration: none;
+  }
+</style>
+
+<div class="product-info">
+    <span class="product-title">You are going to cancel order: <span style="color: #dbdbdb;">{{ returned_quantity }}</span> pieces of <span style="color: #dbdbdb;">{{ product.title }}</span></span>
+    <h5 class="price-info">The returned cost: <span style="color: #dbdbdb;">{{ sum_price_returned_quantity }}</span> RUB</h5>
+    <form method="post" action="{% url 'cancel_order' %}?id={{ product.id }}">
+    {% csrf_token %}
+    <input type="hidden" name="item_price" value="{{ item_price }}">
+    <input type="hidden" name="returned_quantity" value="{{ returned_quantity }}">
+    <button type="submit">Confirm returned order</button>
+    </form>
+  </div>
+  {% endblock %}
